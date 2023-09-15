@@ -1,13 +1,12 @@
 import Head from "next/head";
-import { Inter } from "next/font/google";
 import axios from "axios";
+import Link from "next/link";
 
 interface IData {
-  data: { titles: string[]; href: string[] };
+  data: { title: string; href: string }[];
 }
 
-export default function Home({ data: { titles, href } }: IData) {
-  console.log(href);
+export default function Home({ data }: IData) {
   return (
     <>
       <Head>
@@ -17,8 +16,12 @@ export default function Home({ data: { titles, href } }: IData) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        {titles.map((item, i) => (
-          <div key={i}>{item}</div>
+        {data.map((item, i) => (
+          <div key={i}>
+            <Link href={item.href} target="_blank">
+              {item.title}
+            </Link>
+          </div>
         ))}
       </main>
     </>

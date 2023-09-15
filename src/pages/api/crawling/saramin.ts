@@ -3,20 +3,35 @@ import * as cheerio from "cheerio";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  const { html } = await axios(
-    "https://www.saramin.co.kr/zf_user/jobs/list/job-category?cat_kewd=92&exp_cd=1&panel_type=&search_optional_item=y&search_done=y&panel_count=y&preview=y&page=1&sort=RD"
-  );
+  try {
+    const DOMAIN = "https://www.saramin.co.kr";
 
-  const $ = cheerio.load(html);
+    const html = await axios(
+      `${DOMAIN}/zf_user/jobs/list/job-category?cat_kewd=92&exp_cd=1&panel_type=&search_optional_item=y&search_done=y&panel_count=y&preview=y&page=1&sort=RD`
+    );
 
-  const data = [] as any;
+    const $ = cheerio.load(html.data);
 
-  $(".str_tit").each((_, item) => {
-    data.titles.push(item.attribs.title);
-    data.href.push(item.attribs.href);
-  });
+    const result = [] as object[];
+    const titles = [] as string[];
+    const hrefs = [] as string[];
 
-  return res.status(200).json([{ title, href }]);
+    $(".job_tit .str_tit").each((_, item) => {
+      titles.push(item.attribs.title);
+      hrefs.push(item.attribs.href);
+    });
+
+    if (titles.length === hrefs.length) {
+      for (let i = 0; i < titles.length; i++) {
+        result.push({
+          title: titles[i],
+          href: `${DOMAIN}${hrefs[i]}`,
+        });
+      }
+    }
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.log(error);
+  }
 };
-
-// 데이터 다듬기
