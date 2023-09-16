@@ -3,10 +3,12 @@ import axios from "axios";
 import Link from "next/link";
 
 interface IData {
-  data: { title: string; href: string }[];
+  data: { title: string; link: string }[];
 }
 
 export default function Home({ data }: IData) {
+  console.log(data);
+
   return (
     <>
       <Head>
@@ -18,7 +20,7 @@ export default function Home({ data }: IData) {
       <main>
         {data.map((item, i) => (
           <div key={i}>
-            <Link href={item.href} target="_blank">
+            <Link href={item.link} target="_blank">
               {item.title}
             </Link>
           </div>
