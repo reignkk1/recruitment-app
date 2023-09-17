@@ -7,8 +7,6 @@ interface IData {
 }
 
 export default function Home({ data }: IData) {
-  console.log(data);
-
   return (
     <>
       <Head>
