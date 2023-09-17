@@ -1,14 +1,21 @@
 import Head from "next/head";
 import axios from "axios";
 import Link from "next/link";
+import { css } from "@emotion/react";
 
 interface IData {
-  data: { title: string; link: string }[];
+  data: {
+    title: string;
+    link: string;
+    company: { name: string; link: string };
+    workPlace: string;
+    career: string;
+    education: string;
+    deadLines: string;
+  }[];
 }
 
 export default function Home({ data }: IData) {
-  console.log(data);
-
   return (
     <>
       <Head>
@@ -17,15 +24,67 @@ export default function Home({ data }: IData) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main>
-        {data.map((item, i) => (
-          <div key={i}>
-            <Link href={item.link} target="_blank">
-              {item.title}
-            </Link>
-          </div>
+      <ul
+        css={css`
+          border-top: 1px solid black;
+        `}
+      >
+        {data.map((item, idx) => (
+          <li
+            key={idx}
+            css={css`
+              display: flex;
+              justify-content: space-between;
+              padding: 50px 10px;
+              border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+              a {
+                color: black;
+                text-decoration: none;
+                &:hover {
+                  border-bottom: 1px solid black;
+                }
+              }
+            `}
+          >
+            <div
+              css={css`
+                width: 150px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              `}
+            >
+              <Link href={item.company.link} target="_blank">
+                {item.company.name}
+              </Link>
+            </div>
+            <div
+              css={css`
+                width: 800px;
+                font-weight: bold;
+              `}
+            >
+              <Link href={item.link} target="_blank">
+                {item.title}
+              </Link>
+            </div>
+            <div
+              css={css`
+                width: 300px;
+                div {
+                  font-size: 14px;
+                  margin-bottom: 8px;
+                }
+              `}
+            >
+              <div>{item.workPlace}</div>
+              <div>{item.career}</div>
+              <div>{item.education}</div>
+              <div>{item.deadLines}</div>
+            </div>
+          </li>
         ))}
-      </main>
+      </ul>
     </>
   );
 }
