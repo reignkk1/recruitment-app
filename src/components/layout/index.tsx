@@ -15,7 +15,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <SideBar />
         <div
           css={css`
-            width: 100%;
+            width: 85%;
             padding: 50px 50px 50px 150px;
           `}
         >
