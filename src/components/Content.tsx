@@ -2,7 +2,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { css } from "@emotion/react";
 import { useState } from "react";
-import { useRouter } from "next/router";
+import useActiveSection from "@/utils/useActiveSection";
 
 interface IData {
   data: {
@@ -19,6 +19,10 @@ interface IData {
 export default function Content({ data }: IData) {
   const [posts, setPosts] = useState(data);
   const section = useActiveSection();
+
+  const handelTitleClick = () => {
+    // 클릭 시 흐리게
+  };
 
   return (
     <>
@@ -64,6 +68,7 @@ export default function Content({ data }: IData) {
               </Link>
             </div>
             <div
+              onClick={() => handelTitleClick()}
               css={css`
                 width: 800px;
                 font-weight: bold;
@@ -92,15 +97,4 @@ export default function Content({ data }: IData) {
       </ul>
     </>
   );
-}
-
-function useActiveSection() {
-  const { asPath } = useRouter();
-  if (asPath.startsWith("/saramin")) {
-    return "사람인";
-  } else if (asPath.startsWith("/jobkorea")) {
-    return "잡코리아";
-  } else if (asPath === "/") {
-    return "홈";
-  }
 }
