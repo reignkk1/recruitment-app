@@ -3,6 +3,7 @@ import Link from "next/link";
 import { css } from "@emotion/react";
 import { useState } from "react";
 import useActiveSection from "@/utils/useActiveSection";
+import { useEffect } from "react";
 
 interface IData {
   data: {
@@ -18,7 +19,12 @@ interface IData {
 
 export default function Content({ data }: IData) {
   const [posts, setPosts] = useState(data);
+
   const section = useActiveSection();
+
+  useEffect(() => {
+    setPosts(data);
+  }, [data]);
 
   const handelTitleClick = () => {
     // 클릭 시 흐리게
