@@ -14,16 +14,22 @@ interface IData {
   }[];
 }
 
-export default function jobkorea({
+export default function Page({
   data,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return <Content data={data} />;
 }
 
-export const getServerSideProps = (async () => {
+export const getServerSideProps = (async ({ params }) => {
+  console.log(params?.recruitment);
   const { data } = await axios.get(
-    "http://localhost:3000/api/crawling/jobkorea"
+    `http://localhost:3000/api/crawling/${params?.recruitment}`
   );
+  if (!data) {
+    return {
+      notFound: true,
+    };
+  }
   return { props: { data } };
 }) satisfies GetServerSideProps<{
   data: IData;
