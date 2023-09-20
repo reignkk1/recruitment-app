@@ -15,6 +15,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const result = [] as object[];
 
     $(".list-default .list-post").each((_, item) => {
+      const id = $(item).attr("data-gino");
       const title = $(item).find(".title").text().trim();
       const link = DOMAIN + $(item).find(".title").attr("href");
       const companyName = $(item).find(".name").text().trim();
@@ -23,14 +24,17 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       const career = $(item).find(".exp").text();
       const education = $(item).find(".edu").text();
       const deadLines = $(item).find(".date").text();
+      const etc = $(item).find(".etc").text();
 
       result.push({
+        id,
         title,
         link,
         company: { name: companyName, link: companyLink },
         workPlace,
         career,
         education,
+        etc,
         deadLines,
       });
     });

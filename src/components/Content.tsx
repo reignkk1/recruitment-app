@@ -6,22 +6,31 @@ import useActiveSection from "@/utils/useActiveSection";
 
 interface IData {
   data: {
+    id: string;
     title: string;
     link: string;
     company: { name: string; link: string };
     workPlace: string;
     career: string;
     education: string;
+    etc: string;
     deadLines: string;
   }[];
 }
 
 export default function Content({ data }: IData) {
   const [posts, setPosts] = useState(data);
+  const [readed, setReaded] = useState<string[]>(
+    JSON.parse(localStorage.getItem("readed") || "[]")
+  );
   const section = useActiveSection();
 
-  const handelTitleClick = () => {
-    // 클릭 시 흐리게
+  const handelTitleClick = (postId: string) => {
+    if (readed.includes(postId)) {
+      return;
+    }
+    localStorage.setItem("readed", JSON.stringify([...readed, postId]));
+    setReaded(JSON.parse(localStorage.getItem("readed") || "[]"));
   };
 
   return (
@@ -37,9 +46,9 @@ export default function Content({ data }: IData) {
           border-top: 1px solid black;
         `}
       >
-        {posts.map((post, idx) => (
+        {posts.map((post) => (
           <li
-            key={idx}
+            key={post.id}
             css={css`
               display: flex;
               justify-content: space-between;
@@ -68,15 +77,36 @@ export default function Content({ data }: IData) {
               </Link>
             </div>
             <div
-              onClick={() => handelTitleClick()}
               css={css`
                 width: 800px;
                 font-weight: bold;
+                a {
+                  color: ${readed.includes(post.id)
+                    ? "rgba(0,0,0,0.4)"
+                    : "black"};
+                }
               `}
             >
-              <Link href={post.link} target="_blank">
+              <Link
+                href={post.link}
+                target="_blank"
+                onClick={() => handelTitleClick(post.id)}
+              >
                 {post.title}
               </Link>
+              <div
+                css={css`
+                  font-size: 12px;
+                  color: rgba(0, 0, 0, 0.5);
+                  margin-top: 30px;
+                  width: 400px;
+                  white-space: nowrap;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                `}
+              >
+                {post.etc}
+              </div>
             </div>
             <div
               css={css`
