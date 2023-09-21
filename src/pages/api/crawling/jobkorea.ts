@@ -2,7 +2,10 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import { NextApiRequest, NextApiResponse } from "next";
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+export default async function jobkorea(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   try {
     const DOMAIN = "https://www.jobkorea.co.kr";
 
@@ -43,4 +46,4 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   } catch (error) {
     console.log(error);
   }
-};
+}
