@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { css } from "@emotion/react";
 import useActiveSection from "@/utils/useActiveSection";
+import Image from "next/image";
 
 export default function SideBar() {
   const sidBarMenu = [
@@ -45,8 +46,6 @@ export default function SideBar() {
           }
         }
         img {
-          width: 15px;
-          height: 15px;
           margin-right: 5px;
         }
       `}
@@ -62,7 +61,7 @@ export default function SideBar() {
             `}
           >
             <Link href={menu.link}>
-              <img src={menu.src} />
+              <Image alt="menu" src={menu.src} width={15} height={15} />
               <div>{menu.name}</div>
             </Link>
           </li>

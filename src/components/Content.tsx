@@ -1,35 +1,35 @@
 import Head from "next/head";
 import Link from "next/link";
 import { css } from "@emotion/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useActiveSection from "@/utils/useActiveSection";
 
 interface IData {
-  data: {
-    id: string;
-    title: string;
-    link: string;
-    company: { name: string; link: string };
-    workPlace: string;
-    career: string;
-    education: string;
-    etc: string;
-    deadLines: string;
-  }[];
+  id: string;
+  title: string;
+  link: string;
+  company: { name: string; link: string };
+  workPlace: string;
+  career: string;
+  education: string;
+  etc: string;
+  deadLines: string;
 }
 
-export default function Content({ data }: IData) {
+export default function Content({ data }: { data: IData[] }) {
   const [posts, setPosts] = useState(data);
-  const [readed, setReaded] = useState<string[]>(
-    JSON.parse(localStorage.getItem("readed") || "[]")
-  );
+  const [readed, setReaded] = useState<string[]>();
   const section = useActiveSection();
 
+  useEffect(() => {
+    setReaded(JSON.parse(localStorage.getItem("readed") || "[]"));
+  }, []);
+
   const handelTitleClick = (postId: string) => {
-    if (readed.includes(postId)) {
+    if (readed?.includes(postId)) {
       return;
     }
-    localStorage.setItem("readed", JSON.stringify([...readed, postId]));
+    localStorage.setItem("readed", JSON.stringify([...(readed || []), postId]));
     setReaded(JSON.parse(localStorage.getItem("readed") || "[]"));
   };
 
@@ -46,7 +46,7 @@ export default function Content({ data }: IData) {
           border-top: 1px solid black;
         `}
       >
-        {posts.map((post) => (
+        {data?.map((post) => (
           <li
             key={post.id}
             css={css`
@@ -78,10 +78,13 @@ export default function Content({ data }: IData) {
             </div>
             <div
               css={css`
-                width: 800px;
+                width: 600px;
                 font-weight: bold;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
                 a {
-                  color: ${readed.includes(post.id)
+                  color: ${readed?.includes(post.id)
                     ? "rgba(0,0,0,0.4)"
                     : "black"};
                 }

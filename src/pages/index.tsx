@@ -1,4 +1,5 @@
 import { css } from "@emotion/react";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -13,10 +14,12 @@ export default function Home() {
       `}
     >
       <h1>신입채용 공고 모음 사이트</h1>
-      <img
+      <Image
+        alt="banner"
         src="https://ukcareguide.co.uk/media/choose-recruitment-agency-min.jpg"
+        width={1000}
+        height={400}
         css={css`
-          width: 1000px;
           border-radius: 10px;
         `}
       />
