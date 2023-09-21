@@ -22,7 +22,7 @@ export default function saramin({
 
 export const getServerSideProps = (async () => {
   const { data } = await axios.get(
-    "http://localhost:3000/api/crawling/saramin"
+    `${process.env.NEXT_PUBLIC_HOST}/api/crawling/saramin`
   );
   return { props: { data } };
 }) satisfies GetServerSideProps<{

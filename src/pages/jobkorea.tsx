@@ -22,7 +22,7 @@ export default function jobkorea({
 
 export const getServerSideProps = (async () => {
   const { data } = await axios.get(
-    "http://localhost:3000/api/crawling/jobkorea"
+    `${process.env.NEXT_PUBLIC_HOST}/api/crawling/jobkorea`
   );
   return { props: { data } };
 }) satisfies GetServerSideProps<{
