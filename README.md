@@ -5,7 +5,6 @@
 
 <a target='_blank' href='https://nextjs-app-pi-lyart.vercel.app/'>Website link</a>
 
-<img width='1200px' height='500px' src='https://github.com/reignkk1/recruitment-app/assets/87847136/5407a0e9-e34f-4de2-9332-bad64a616a2d'/>
 
 ### Project Stack
 
