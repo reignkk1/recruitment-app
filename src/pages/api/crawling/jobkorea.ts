@@ -7,10 +7,13 @@ export default async function jobkorea(
   res: NextApiResponse
 ) {
   try {
+    const {
+      query: { page },
+    } = req;
     const DOMAIN = "https://www.jobkorea.co.kr";
 
     const { data: html } = await axios(
-      `${DOMAIN}/Search/?stext=프론트엔드&careerType=1&tabType=recruit&Page_No=1&Ord=RegDtDesc`
+      `${DOMAIN}/Search/?stext=프론트엔드&careerType=1&tabType=recruit&Page_No=${page}&Ord=RegDtDesc`
     );
 
     const $ = cheerio.load(html);

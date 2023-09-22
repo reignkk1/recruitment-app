@@ -2,7 +2,6 @@ import Head from "next/head";
 import Link from "next/link";
 import { css } from "@emotion/react";
 import { useEffect, useState } from "react";
-import useActiveSection from "@/utils/useActiveSection";
 
 interface IData {
   id: string;
@@ -16,14 +15,19 @@ interface IData {
   deadLines: string;
 }
 
-export default function Content({ data }: { data: IData[] }) {
+interface IContent {
+  data: IData[];
+  section?: "사람인" | "잡코리아" | "홈";
+}
+
+export default function Content({ data, section }: IContent) {
   const [posts, setPosts] = useState(data);
   const [readed, setReaded] = useState<string[]>();
-  const section = useActiveSection();
 
   useEffect(() => {
+    setPosts(data);
     setReaded(JSON.parse(localStorage.getItem("readed") || "[]"));
-  }, []);
+  }, [data]);
 
   const handelTitleClick = (postId: string) => {
     if (readed?.includes(postId)) {
@@ -46,7 +50,7 @@ export default function Content({ data }: { data: IData[] }) {
           border-top: 1px solid black;
         `}
       >
-        {data?.map((post) => (
+        {posts?.map((post) => (
           <li
             key={post.id}
             css={css`

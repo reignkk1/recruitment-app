@@ -4,6 +4,7 @@ import useActiveSection from "@/utils/useActiveSection";
 import Image from "next/image";
 
 export default function SideBar() {
+  const section = useActiveSection();
   const sidBarMenu = [
     {
       name: "홈",
@@ -21,8 +22,6 @@ export default function SideBar() {
       src: "https://www.jobkorea.co.kr/favicon.ico?202309191400",
     },
   ];
-
-  const section = useActiveSection();
 
   return (
     <nav

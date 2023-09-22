@@ -7,10 +7,14 @@ export default async function saramin(
   res: NextApiResponse
 ) {
   try {
+    const {
+      query: { page },
+    } = req;
+
     const DOMAIN = "https://www.saramin.co.kr";
 
     const { data: html } = await axios(
-      `${DOMAIN}/zf_user/jobs/list/job-category?cat_kewd=92&exp_cd=1&panel_type=&search_optional_item=y&search_done=y&panel_count=y&preview=y&page=1&sort=RD&page_count=20`
+      `${DOMAIN}/zf_user/jobs/list/job-category?cat_kewd=92&exp_cd=1&panel_type=&search_optional_item=y&search_done=y&panel_count=y&preview=y&page=${page}&sort=RD&page_count=20`
     );
 
     const $ = cheerio.load(html);
