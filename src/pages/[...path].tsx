@@ -1,5 +1,4 @@
 import Content from "@/components/Content";
-import useActiveSection from "@/utils/useActiveSection";
 import axios from "axios";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 
@@ -18,8 +17,7 @@ interface IData {
 export default function Page({
   data,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const section = useActiveSection();
-  return <Content data={data} section={section} />;
+  return <Content data={data} />;
 }
 
 export const getStaticProps = (async ({ params }) => {
@@ -30,7 +28,7 @@ export const getStaticProps = (async ({ params }) => {
     `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section}?page=${page}`
   );
 
-  return { props: { data }, revalidate: 60 };
+  return { props: { data }, revalidate: 10 };
 }) satisfies GetStaticProps<{
   data: IData;
 }>;
