@@ -1,8 +1,7 @@
-import PageButtons from "@/components/PageButtons";
 import axios from "axios";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import PostList from "@/components/PostList";
-import { Suspense } from "react";
+import Seo from "@/components/Seo";
 
 interface IData {
   id: string;
@@ -19,11 +18,7 @@ interface IData {
 export default function Page({
   data,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  return (
-    <>
-      <PostList data={data} />
-    </>
-  );
+  return <PostList data={data} />;
 }
 
 export const getStaticProps = (async ({ params }) => {
