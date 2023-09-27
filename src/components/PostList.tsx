@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import useActiveSection from "@/utils/useActiveSection";
+import PageButtons from "./PageButtons";
 
 interface IData {
   id: string;
@@ -22,7 +23,7 @@ interface IContent {
   data: IData[];
 }
 
-export default function Content({ data }: IContent) {
+export default function PostList({ data }: IContent) {
   const [posts, setPosts] = useState<IData[]>();
   const [readed, setReaded] = useState<string[]>();
   const [loading, setLoading] = useState(false);
@@ -175,15 +176,7 @@ export default function Content({ data }: IContent) {
           </li>
         ))}
       </ul>
-      <div>
-        {page && page !== "1" ? (
-          <Link href={`/${section}?page=${Number(page) - 1}`}>이전 페이지</Link>
-        ) : null}
-
-        <Link href={`/${section}?page=${page ? Number(page) + 1 : 2}`}>
-          다음 페이지
-        </Link>
-      </div>
+      <PageButtons />
     </>
   );
 }
