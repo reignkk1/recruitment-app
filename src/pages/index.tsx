@@ -13,7 +13,7 @@ export default function Home() {
         }
       `}
     >
-      <h1>신입채용 공고 모음 사이트</h1>
+      <h1>개발자 신입채용 공고 모음 사이트</h1>
       <Image
         alt="banner"
         src="https://ukcareguide.co.uk/media/choose-recruitment-agency-min.jpg"
