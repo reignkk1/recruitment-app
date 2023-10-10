@@ -2,8 +2,8 @@ import Link from "next/link";
 import { css } from "@emotion/react";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useRouter } from "next/router";
 import PageButtons from "./PageButtons";
+import useQuery from "@/utils/useQuery";
 
 interface IData {
   id: string;
@@ -26,32 +26,31 @@ export default function PostList({ data }: IContent) {
   const [readed, setReaded] = useState<string[]>();
   const [loading, setLoading] = useState(false);
 
-  const { page, path } = useRouter().query;
-  const section = path![0];
+  const {
+    section,
+    job,
+    career,
+    page,
+    router: { asPath },
+  } = useQuery();
+  const GET_URI = `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section}?job=${job}&career=${career}&page=${page}`;
 
   const getItem = () => {
     if (window) return JSON.parse(localStorage.getItem("readed") || "[]");
   };
 
-  const pageChangeFetch = async () => {
-    if (Number(page)) {
-      setLoading(true);
-      const { data } = await axios.get(
-        `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section}?page=${page}`
-      );
-      setLoading(false);
-      setPosts(data);
-    }
+  const getPostsFetch = async () => {
+    console.log(section, job, career, page);
+    setLoading(true);
+    const { data } = await axios.get(GET_URI);
+    setLoading(false);
+    setPosts(data);
   };
 
   useEffect(() => {
-    setPosts(data);
-  }, [data]);
-
-  useEffect(() => {
-    pageChangeFetch();
+    getPostsFetch();
     setReaded(getItem());
-  }, [page]);
+  }, [asPath]);
 
   const handelTitleClick = (postId: string) => {
     if (!readed?.includes(postId)) {
@@ -82,6 +81,8 @@ export default function PostList({ data }: IContent) {
       <ul
         css={css`
           border-top: 1px solid black;
+          width: 1200px;
+          margin: 0 auto;
         `}
       >
         {posts?.map((post) => (

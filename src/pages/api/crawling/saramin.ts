@@ -8,13 +8,32 @@ export default async function saramin(
 ) {
   try {
     const {
-      query: { page },
+      query: { page, job, career },
     } = req;
 
+    const jobCodeConvert = () => {
+      switch (job) {
+        case "frontend":
+          return 92;
+        case "backend":
+          return 84;
+      }
+    };
+    const careerCodeConvert = () => {
+      switch (career) {
+        case "junior":
+          return 1;
+        case "senior":
+          return 2;
+      }
+    };
+
     const DOMAIN = "https://www.saramin.co.kr";
+    const CAREER = careerCodeConvert();
+    const JOB = jobCodeConvert();
 
     const { data: html } = await axios(
-      `${DOMAIN}/zf_user/jobs/list/job-category?cat_kewd=92&exp_cd=1&panel_type=&search_optional_item=y&search_done=y&panel_count=y&preview=y&page=${page}&sort=RD&page_count=20`
+      `${DOMAIN}/zf_user/jobs/list/job-category?cat_kewd=${JOB}&exp_cd=${CAREER}&panel_type=&search_optional_item=y&search_done=y&panel_count=y&preview=y&page=${page}&sort=RD&page_count=20`
     );
 
     const $ = cheerio.load(html);
