@@ -13,12 +13,12 @@ export default function SideBar() {
     },
     {
       name: "사람인",
-      link: "/saramin",
+      link: "/saramin?job=frontend&career=junior&page=1",
       src: "https://www.saramin.co.kr/favicon.ico?ver=2",
     },
     {
       name: "잡코리아",
-      link: "/jobkorea",
+      link: "/jobkorea?job=frontend&career=junior&page=1",
       src: "https://www.jobkorea.co.kr/favicon.ico?202309191400",
     },
   ];

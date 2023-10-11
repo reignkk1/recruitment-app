@@ -1,7 +1,7 @@
 import axios from "axios";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import PostList from "@/components/PostList";
-import Seo from "@/components/Seo";
+import Search from "@/components/Search";
 
 interface IData {
   id: string;
@@ -18,18 +18,25 @@ interface IData {
 export default function Page({
   data,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  return <PostList data={data} />;
+  return (
+    <div>
+      <Search />
+      <PostList data={data} />
+    </div>
+  );
 }
 
 export const getStaticProps = (async ({ params }) => {
   const page = params?.page || 1;
   const section = params?.path![0];
+  const job = params?.job;
+  const career = params?.career;
 
-  const { data } = await axios(
-    `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section}?page=${page}`
-  );
+  const GET_URL = `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section}?job=${job}&career=${career}&page=${page}`;
 
-  return { props: { data }, revalidate: 10 };
+  const { data } = await axios(GET_URL);
+
+  return { props: { data }, revalidate: 1 };
 }) satisfies GetStaticProps<{
   data: IData;
 }>;
@@ -37,8 +44,22 @@ export const getStaticProps = (async ({ params }) => {
 export async function getStaticPaths() {
   return {
     paths: [
-      { params: { page: 1, path: ["saramin"] } },
-      { params: { page: 1, path: ["jobkorea"] } },
+      {
+        params: {
+          page: 1,
+          path: ["saramin"],
+          job: "frontend",
+          career: "junior",
+        },
+      },
+      {
+        params: {
+          page: 1,
+          path: ["jobkorea"],
+          job: "frontend",
+          career: "junior",
+        },
+      },
     ],
     fallback: false,
   };
