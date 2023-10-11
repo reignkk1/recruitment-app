@@ -40,12 +40,15 @@ export default function PostList({ data }: IContent) {
   };
 
   const getPostsFetch = async () => {
-    console.log(section, job, career, page);
     setLoading(true);
     const { data } = await axios.get(GET_URI);
     setLoading(false);
     setPosts(data);
   };
+
+  useEffect(() => {
+    setPosts(data);
+  }, [data]);
 
   useEffect(() => {
     getPostsFetch();

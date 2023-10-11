@@ -8,12 +8,32 @@ export default async function jobkorea(
 ) {
   try {
     const {
-      query: { page },
+      query: { page, job, career },
     } = req;
     const DOMAIN = "https://www.jobkorea.co.kr";
 
+    const jobCodeConvert = () => {
+      switch (job) {
+        case "frontend":
+          return "프론트엔드";
+        case "backend":
+          return "백엔드";
+      }
+    };
+    const careerCodeConvert = () => {
+      switch (career) {
+        case "junior":
+          return 1;
+        case "senior":
+          return 2;
+      }
+    };
+
+    const CAREER = careerCodeConvert();
+    const JOB = jobCodeConvert();
+
     const { data: html } = await axios(
-      `${DOMAIN}/Search/?stext=프론트엔드&careerType=1&tabType=recruit&Page_No=${page}&Ord=RegDtDesc`
+      `${DOMAIN}/Search/?stext=${JOB}&careerType=${CAREER}&tabType=recruit&Page_No=${page}&Ord=RegDtDesc`
     );
 
     const $ = cheerio.load(html);
