@@ -26,13 +26,7 @@ export default function PostList({ data }: IContent) {
   const [readed, setReaded] = useState<string[]>();
   const [loading, setLoading] = useState(false);
 
-  const {
-    section,
-    job,
-    career,
-    page,
-    router: { query, asPath },
-  } = useQuery();
+  const { section, job, career, page } = useQuery();
   const GET_URI = `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section}?job=${job}&career=${career}&page=${page}`;
 
   const getItem = () => {
