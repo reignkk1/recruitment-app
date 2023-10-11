@@ -1,11 +1,16 @@
 import useQuery from "@/utils/useQuery";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 
 export default function Search() {
   const [job, setJob] = useState<"backend" | "frontend">("frontend");
   const [career, setareer] = useState<"junior" | "senior">("junior");
 
   const { router, section } = useQuery();
+
+  useEffect(() => {
+    setJob("frontend");
+    setareer("junior");
+  }, [section]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
