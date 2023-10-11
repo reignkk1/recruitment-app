@@ -3,7 +3,12 @@ import { css } from "@emotion/react";
 import useQuery from "@/utils/useQuery";
 
 export default function PageButtons() {
-  const { section, job, career, page } = useQuery();
+  const {
+    section,
+    job = "frontend",
+    career = "junior",
+    page = "1",
+  } = useQuery();
 
   const prev_URI = `/${section}?job=${job}&career=${career}&page=${
     Number(page) - 1
