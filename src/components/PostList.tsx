@@ -31,7 +31,7 @@ export default function PostList({ data }: IContent) {
     job,
     career,
     page,
-    router: { asPath },
+    router: { query, asPath },
   } = useQuery();
   const GET_URI = `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section}?job=${job}&career=${career}&page=${page}`;
 
@@ -48,12 +48,15 @@ export default function PostList({ data }: IContent) {
 
   useEffect(() => {
     setPosts(data);
+    setReaded(getItem());
   }, [data]);
 
   useEffect(() => {
-    getPostsFetch();
-    setReaded(getItem());
-  }, [asPath]);
+    if (job && career && page) {
+      getPostsFetch();
+      setReaded(getItem());
+    }
+  }, [job, career, page]);
 
   const handelTitleClick = (postId: string) => {
     if (!readed?.includes(postId)) {

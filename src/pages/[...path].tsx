@@ -27,12 +27,9 @@ export default function Page({
 }
 
 export const getStaticProps = (async ({ params }) => {
-  const page = params?.page || 1;
   const section = params?.path![0];
-  const job = params?.job;
-  const career = params?.career;
 
-  const GET_URL = `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section}?job=${job}&career=${career}&page=${page}`;
+  const GET_URL = `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section}?job=frontend&career=junior&page=1`;
 
   const { data } = await axios(GET_URL);
 
@@ -46,18 +43,12 @@ export async function getStaticPaths() {
     paths: [
       {
         params: {
-          page: 1,
           path: ["saramin"],
-          job: "frontend",
-          career: "junior",
         },
       },
       {
         params: {
-          page: 1,
           path: ["jobkorea"],
-          job: "frontend",
-          career: "junior",
         },
       },
     ],
