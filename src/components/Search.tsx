@@ -1,4 +1,5 @@
 import useQuery from "@/utils/useQuery";
+import { css } from "@emotion/react";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 
 export default function Search() {
@@ -24,36 +25,66 @@ export default function Search() {
     setareer(e.target.value as "junior" | "senior");
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form
+      onSubmit={handleSubmit}
+      css={css`
+        display: flex;
+        margin-bottom: 50px;
+        input {
+          margin-right: 10px;
+        }
+        label,
+        input {
+          cursor: pointer;
+        }
+      `}
+    >
       <div>
-        <InputRadio
-          label="프론트엔드"
-          value="frontend"
-          checked={job === "frontend"}
-          onChange={handleJobChange}
-        />
-        <InputRadio
-          label="백엔드"
-          value="backend"
-          checked={job === "backend"}
-          onChange={handleJobChange}
-        />
+        <div
+          css={css`
+            margin-bottom: 5px;
+          `}
+        >
+          <InputRadio
+            label="프론트엔드"
+            value="frontend"
+            checked={job === "frontend"}
+            onChange={handleJobChange}
+          />
+          <InputRadio
+            label="백엔드"
+            value="backend"
+            checked={job === "backend"}
+            onChange={handleJobChange}
+          />
+        </div>
+        <div>
+          <InputRadio
+            label="신입"
+            value="junior"
+            checked={career === "junior"}
+            onChange={handleCareerChange}
+          />
+          <InputRadio
+            label="경력"
+            value="senior"
+            checked={career === "senior"}
+            onChange={handleCareerChange}
+          />
+        </div>
       </div>
-      <div>
-        <InputRadio
-          label="신입"
-          value="junior"
-          checked={career === "junior"}
-          onChange={handleCareerChange}
-        />
-        <InputRadio
-          label="경력"
-          value="senior"
-          checked={career === "senior"}
-          onChange={handleCareerChange}
-        />
-      </div>
-      <button>검색</button>
+      <button
+        css={css`
+          margin-left: 10px;
+          width: 50px;
+          border-radius: 5px;
+          cursor: pointer;
+          background-color: #5694ff;
+          border: none;
+        `}
+      >
+        검색
+      </button>
     </form>
   );
 }
