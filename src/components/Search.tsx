@@ -2,15 +2,24 @@ import useQuery from "@/utils/useQuery";
 import { css } from "@emotion/react";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 
+interface SearchState {
+  job: "backend" | "frontend";
+  career: "junior" | "senior";
+}
+
 export default function Search() {
-  const [job, setJob] = useState<"backend" | "frontend">("frontend");
-  const [career, setareer] = useState<"junior" | "senior">("junior");
+  const [{ job, career }, setState] = useState<SearchState>({
+    job: "frontend",
+    career: "junior",
+  });
 
   const { router, section } = useQuery();
 
   useEffect(() => {
-    setJob("frontend");
-    setareer("junior");
+    setState({
+      job: "frontend",
+      career: "junior",
+    });
   }, [section]);
 
   const handleSubmit = (e: FormEvent) => {
@@ -18,11 +27,14 @@ export default function Search() {
     router.push(`/${section}?job=${job}&career=${career}&page=1`);
   };
 
-  const handleJobChange = (e: ChangeEvent<HTMLInputElement>) =>
-    setJob(e.target.value as "backend" | "frontend");
-
-  const handleCareerChange = (e: ChangeEvent<HTMLInputElement>) =>
-    setareer(e.target.value as "junior" | "senior");
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setState((prev) => {
+      return {
+        ...prev,
+        [e.target.name]: e.target.value,
+      };
+    });
+  };
 
   return (
     <form
@@ -46,30 +58,34 @@ export default function Search() {
           `}
         >
           <InputRadio
+            name="job"
             label="프론트엔드"
             value="frontend"
             checked={job === "frontend"}
-            onChange={handleJobChange}
+            onChange={handleChange}
           />
           <InputRadio
+            name="job"
             label="백엔드"
             value="backend"
             checked={job === "backend"}
-            onChange={handleJobChange}
+            onChange={handleChange}
           />
         </div>
         <div>
           <InputRadio
+            name="career"
             label="신입"
             value="junior"
             checked={career === "junior"}
-            onChange={handleCareerChange}
+            onChange={handleChange}
           />
           <InputRadio
+            name="career"
             label="경력"
             value="senior"
             checked={career === "senior"}
-            onChange={handleCareerChange}
+            onChange={handleChange}
           />
         </div>
       </div>
@@ -94,14 +110,22 @@ interface InputRadioProps {
   value: string;
   onChange(e: ChangeEvent<HTMLInputElement>): void;
   checked: boolean;
+  name: string;
 }
 
-function InputRadio({ label, value, onChange, checked }: InputRadioProps) {
+function InputRadio({
+  name,
+  label,
+  value,
+  onChange,
+  checked,
+}: InputRadioProps) {
   return (
     <>
       <label htmlFor={value}>{label}</label>
       <input
         id={value}
+        name={name}
         type="radio"
         value={value}
         checked={checked}

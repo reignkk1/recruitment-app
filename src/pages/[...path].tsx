@@ -1,9 +1,10 @@
 import axios from "axios";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
-import PostList from "@/components/PostList";
+import Content from "@/components/Content";
 import Search from "@/components/Search";
+import { Suspense } from "react";
 
-interface IData {
+export interface IData {
   id: string;
   title: string;
   link: string;
@@ -21,7 +22,9 @@ export default function Page({
   return (
     <div>
       <Search />
-      <PostList data={data} />
+      <Suspense fallback={<div>로딩중</div>}>
+        <Content data={data} />
+      </Suspense>
     </div>
   );
 }
