@@ -74,7 +74,10 @@ export default async function saramin(
       });
     });
 
-    return res.status(200).json(result);
+    return res
+      .setHeader("Access-Control-Allow-Origin", "*")
+      .status(200)
+      .json(result);
   } catch (error) {
     console.log(error);
   }
