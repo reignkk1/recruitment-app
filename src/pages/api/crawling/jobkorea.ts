@@ -65,7 +65,10 @@ export default async function jobkorea(
       });
     });
 
-    return res.status(200).json(result);
+    return res
+      .setHeader("Access-Control-Allow-Origin", "*")
+      .status(200)
+      .json(result);
   } catch (error) {
     console.log(error);
   }
