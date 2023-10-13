@@ -2,7 +2,7 @@ import axios from "axios";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import Content from "@/components/Content";
 import Search from "@/components/Search";
-import { Suspense } from "react";
+import { css } from "@emotion/react";
 
 export interface IData {
   id: string;
@@ -20,11 +20,14 @@ export default function Page({
   data,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   return (
-    <div>
+    <div
+      css={css`
+        width: 1200px;
+        margin: 0 auto;
+      `}
+    >
       <Search />
-      <Suspense fallback={<div>로딩중</div>}>
-        <Content data={data} />
-      </Suspense>
+      <Content data={data} />
     </div>
   );
 }

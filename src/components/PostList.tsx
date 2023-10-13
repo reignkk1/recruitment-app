@@ -32,8 +32,6 @@ export default function PostList({ posts }: PostListProps) {
     <ul
       css={css`
         border-top: 1px solid black;
-        width: 1200px;
-        margin: 0 auto;
       `}
     >
       {posts?.map((post) => (
