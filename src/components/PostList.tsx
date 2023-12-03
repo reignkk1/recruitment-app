@@ -5,7 +5,7 @@ import Link from "next/link";
 import { IData } from "@/pages/[...path]";
 
 interface PostListProps {
-  posts: IData[];
+  posts?: IData[];
 }
 
 export default function PostList({ posts }: PostListProps) {

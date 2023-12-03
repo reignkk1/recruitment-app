@@ -5,31 +5,16 @@ import PageButtons from "./PageButtons";
 import useQuery from "@/utils/useQuery";
 import PostList from "./PostList";
 import { IData } from "@/pages/[...path]";
+import Image from "next/image";
 
-export default function Content() {
+export default function Content({ data }: { data: IData[] }) {
   const [posts, setPosts] = useState<IData[]>();
-  const [loading, setLoading] = useState(false);
-
-  const {
-    section,
-    job = "frontend",
-    career = "junior",
-    page = "1",
-  } = useQuery();
-  const GET_URI = `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section}?job=${job}&career=${career}&page=${page}`;
-
-  const getPostsFetch = async () => {
-    setLoading(true);
-    const { data } = await axios.get(GET_URI);
-    setLoading(false);
-    setPosts(data);
-  };
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if ((job && career && page) || section) {
-      getPostsFetch();
-    }
-  }, [job, career, page, section]);
+    console.log(data);
+    setLoading(false);
+  }, []);
 
   if (loading) {
     return (
@@ -38,14 +23,14 @@ export default function Content() {
           text-align: center;
         `}
       >
-        <img src="/loading.gif" />
+        <Image alt="loading" width={600} height={250} src="/loading.gif" />
       </div>
     );
   }
 
   return (
     <>
-      <PostList posts={posts || []} />
+      <PostList posts={data} />
       <PageButtons />
     </>
   );

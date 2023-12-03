@@ -73,7 +73,6 @@ export default async function saramin(
         deadLines,
       });
     });
-    console.log(result)
 
     return res
       .setHeader("Access-Control-Allow-Origin", "*")
