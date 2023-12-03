@@ -6,15 +6,16 @@ import useQuery from "@/utils/useQuery";
 import PostList from "./PostList";
 import { IData } from "@/pages/[...path]";
 
-interface IContent {
-  data: IData[];
-}
-
-export default function Content({ data }: IContent) {
+export default function Content() {
   const [posts, setPosts] = useState<IData[]>();
   const [loading, setLoading] = useState(false);
 
-  const { section, job, career, page } = useQuery();
+  const {
+    section,
+    job = "frontend",
+    career = "junior",
+    page = "1",
+  } = useQuery();
   const GET_URI = `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section}?job=${job}&career=${career}&page=${page}`;
 
   const getPostsFetch = async () => {
@@ -25,23 +26,19 @@ export default function Content({ data }: IContent) {
   };
 
   useEffect(() => {
-    if (job && career && page) {
+    if ((job && career && page) || section) {
       getPostsFetch();
-    } else {
-      setPosts(data);
     }
-  }, [job, career, page, data]);
+  }, [job, career, page, section]);
 
   if (loading) {
     return (
       <div
         css={css`
-          font-size: 28px;
-          font-weight: bold;
           text-align: center;
         `}
       >
-        🛠️크롤링 중..
+        <img src="/loading.gif" />
       </div>
     );
   }
