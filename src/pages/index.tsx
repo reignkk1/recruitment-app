@@ -1,4 +1,3 @@
-import Seo from "@/components/Seo";
 import { css } from "@emotion/react";
 import Image from "next/image";
 
