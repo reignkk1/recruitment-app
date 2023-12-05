@@ -1,8 +1,7 @@
-import useActiveSection from "@/utils/useActiveSection";
 import Head from "next/head";
 
 export default function Seo() {
-  const title = useActiveSection();
+  const title = "asdf";
   return (
     <Head>
       <title>{title + " | Recruitment"}</title>

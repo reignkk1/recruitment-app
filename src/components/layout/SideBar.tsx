@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { css } from "@emotion/react";
-import useActiveSection from "@/utils/useActiveSection";
 import Image from "next/image";
+import { useRouter } from "next/router";
 
 export default function SideBar() {
-  const section = useActiveSection();
+  const { asPath } = useRouter();
+  const cleanedPath = asPath.split(/[\?\#]/)[0];
+
   const sidBarMenu = [
     {
       name: "홈",
@@ -54,7 +56,7 @@ export default function SideBar() {
           <li
             key={i}
             css={css`
-              background-color: ${menu.name === section
+              background-color: ${menu.link === cleanedPath
                 ? "rgba(0,0,0,0.1)"
                 : "none"};
             `}

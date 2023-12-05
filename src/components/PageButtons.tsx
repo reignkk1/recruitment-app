@@ -1,19 +1,18 @@
 import Link from "next/link";
 import { css } from "@emotion/react";
-import useQuery from "@/utils/useQuery";
+import { useRouter } from "next/router";
 
 export default function PageButtons() {
-  const {
-    section,
-    job = "frontend",
-    career = "junior",
-    page = "1",
-  } = useQuery();
+  const router = useRouter();
 
-  const prev_URI = `/${section}?job=${job}&career=${career}&page=${
+  const { page = "1", job = "frontend", career = "junior" } = router.query;
+
+  const path = router.query.path || "";
+
+  const prev_URI = `/${path[0]}?job=${job}&career=${career}&page=${
     Number(page) - 1
   }`;
-  const next_URI = `/${section}?job=${job}&career=${career}&page=${
+  const next_URI = `/${path[0]}?job=${job}&career=${career}&page=${
     Number(page) + 1
   }`;
 
