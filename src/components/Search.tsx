@@ -1,5 +1,5 @@
-import useQuery from "@/utils/useQuery";
 import { css } from "@emotion/react";
+import { useRouter } from "next/router";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 
 interface SearchState {
@@ -8,23 +8,24 @@ interface SearchState {
 }
 
 export default function Search() {
+  const router = useRouter();
   const [{ job, career }, setState] = useState<SearchState>({
     job: "frontend",
     career: "junior",
   });
 
-  const { router, section } = useQuery();
+  const { path } = router.query;
 
   useEffect(() => {
     setState({
       job: "frontend",
       career: "junior",
     });
-  }, [section]);
+  }, [path]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    router.push(`/${section}?job=${job}&career=${career}&page=1`);
+    router.push(`/${path![0]}?job=${job}&career=${career}&page=1`);
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
