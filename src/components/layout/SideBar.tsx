@@ -61,10 +61,10 @@ export default function SideBar() {
                 : "none"};
             `}
           >
-            <Link href={menu.link}>
+            <a href={menu.link}>
               <Image alt="menu" src={menu.src} width={15} height={15} />
               <div>{menu.name}</div>
-            </Link>
+            </a>
           </li>
         ))}
       </ul>
