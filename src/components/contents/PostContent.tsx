@@ -4,18 +4,15 @@ import PostList from "../PostList";
 import Search from "../Search";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { IData } from "@/pages/[...path]";
+import { IData } from "@/pages/[[...path]]";
 import { useRouter } from "next/router";
 import axios from "axios";
 
 export default function PostContent({ data }: { data: IData[] }) {
   const [posts, setPosts] = useState<IData[]>(data);
   const [loading, setLoading] = useState(false);
-
   const { query, asPath } = useRouter();
-
   const section = query.path! || "";
-
   const GET_URI = `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section[0]}?job=${query.job}&career=${query.career}&page=${query.page}`;
 
   const getFetchPosts = async () => {
