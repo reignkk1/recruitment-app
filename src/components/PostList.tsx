@@ -2,7 +2,7 @@ import { css } from "@emotion/react";
 import { useState } from "react";
 import { useEffect } from "react";
 import Link from "next/link";
-import { IData } from "@/pages/[...path]";
+import { IData } from "@/pages/[[...path]]";
 
 interface PostListProps {
   posts?: IData[];
