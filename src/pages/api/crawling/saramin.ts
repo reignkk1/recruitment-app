@@ -33,12 +33,20 @@ export default async function saramin(
     const JOB = jobCodeConvert();
 
     const { data: html } = await axios(
-      `${DOMAIN}/zf_user/jobs/list/job-category?cat_kewd=${JOB}&exp_cd=${CAREER}&panel_type=&search_optional_item=y&search_done=y&panel_count=y&preview=y&page=${page}&sort=RD&page_count=20`
+      `${DOMAIN}/zf_user/jobs/list/job-category?cat_kewd=${JOB}&exp_cd=${CAREER}&panel_type=&search_optional_item=y&search_done=y&panel_count=y&preview=y&page=${page}&sort=RD&page_count=20`,
+      {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        },
+      }
     );
 
     const $ = cheerio.load(html);
 
     const result = [] as object[];
+
+    const total = Number($(".total_count em").text());
 
     $(".list_item").each((_, item) => {
       const id = $(item).attr("id");
@@ -77,7 +85,7 @@ export default async function saramin(
     return res
       .setHeader("Access-Control-Allow-Origin", "*")
       .status(200)
-      .json(result);
+      .json({ result, total });
   } catch (error) {
     console.log(error);
   }

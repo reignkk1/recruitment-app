@@ -1,3 +1,4 @@
+import useActiveSection from "@/hooks/useActiveSection";
 import { css } from "@emotion/react";
 import { useRouter } from "next/router";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
@@ -8,24 +9,24 @@ interface SearchState {
 }
 
 export default function Search() {
-  const router = useRouter();
   const [{ job, career }, setState] = useState<SearchState>({
     job: "frontend",
     career: "junior",
   });
 
-  const { path } = router.query;
+  const section = useActiveSection();
+  const router = useRouter();
 
   useEffect(() => {
     setState({
       job: "frontend",
       career: "junior",
     });
-  }, [path]);
+  }, [section]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    router.push(`/${path![0]}?job=${job}&career=${career}&page=1`);
+    router.push(`/${section}?job=${job}&career=${career}&page=1`);
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {

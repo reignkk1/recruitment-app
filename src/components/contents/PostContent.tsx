@@ -1,32 +1,44 @@
 import { css } from "@emotion/react";
-import PageButtons from "../PageButtons";
 import PostList from "../PostList";
 import Search from "../Search";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { IData } from "@/pages/[[...path]]";
+import { IData, IResult } from "@/pages/[[...path]]";
 import { useRouter } from "next/router";
 import axios from "axios";
+import Pagination from "../Pagination";
+import useActiveSection from "@/hooks/useActiveSection";
 
-export default function PostContent({ data }: { data: IData[] }) {
-  const [posts, setPosts] = useState<IData[]>(data);
+interface PostContentProps {
+  data: IData;
+}
+
+export default function PostContent({
+  data: { result, total },
+}: PostContentProps) {
+  const [posts, setPosts] = useState<IResult[]>(result);
   const [loading, setLoading] = useState(false);
-  const { query, asPath } = useRouter();
-  const section = query.path! || "";
-  const GET_URI = `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section[0]}?job=${query.job}&career=${query.career}&page=${query.page}`;
+  const section = useActiveSection();
+  const {
+    query: { job = "frontend", career = "junior", page = "1" },
+    asPath,
+  } = useRouter();
+  const GET_URI = `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section}?job=${job}&career=${career}&page=${page}`;
 
   const getFetchPosts = async () => {
-    const { data } = await axios.get(GET_URI);
-    setPosts(data);
+    const {
+      data: { result },
+    } = await axios.get(GET_URI);
+    setPosts(result);
     setLoading(false);
   };
 
   useEffect(() => {
-    if (query.job) {
+    if (job) {
       setLoading(true);
       getFetchPosts();
     } else {
-      setPosts(data);
+      setPosts(result);
       setLoading(false);
     }
   }, [asPath]);
@@ -43,15 +55,15 @@ export default function PostContent({ data }: { data: IData[] }) {
     );
   }
   return (
-    <div
-      css={css`
-        width: 1200px;
-        margin: 0 auto;
-      `}
-    >
+    <div css={Container}>
       <Search />
       <PostList posts={posts} />
-      <PageButtons />
+      <Pagination total={total} />
     </div>
   );
 }
+
+const Container = css`
+  width: 1200px;
+  margin: 0 auto;
+`;

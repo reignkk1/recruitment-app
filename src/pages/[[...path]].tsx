@@ -1,11 +1,11 @@
 import HomeContent from "@/components/contents/HomeContent";
 import PostContent from "@/components/contents/PostContent";
 import Page from "@/components/layout/Page";
+import useActiveSection from "@/hooks/useActiveSection";
 import axios from "axios";
 import { GetStaticPropsContext } from "next";
-import { useRouter } from "next/router";
 
-export interface IData {
+export interface IResult {
   id: string;
   title: string;
   link: string;
@@ -17,7 +17,12 @@ export interface IData {
   deadLines: string;
 }
 
-export default function Layout({ data }: { data: IData[] }) {
+export interface IData {
+  result: IResult[];
+  total: number;
+}
+
+export default function Layout({ data }: { data: IData }) {
   const section = useActiveSection();
   let content;
 
@@ -32,18 +37,6 @@ export default function Layout({ data }: { data: IData[] }) {
   }
 
   return <Page>{content}</Page>;
-}
-
-function useActiveSection() {
-  const { asPath } = useRouter();
-  const cleanedPath = asPath.split(/[\?\#]/)[0];
-  if (cleanedPath === "/") {
-    return "home";
-  } else if (cleanedPath === "/saramin") {
-    return "saramin";
-  } else if (cleanedPath === "/jobkorea") {
-    return "jobkorea";
-  }
 }
 
 export async function getStaticProps({ params }: GetStaticPropsContext) {
@@ -65,7 +58,6 @@ export async function getStaticPaths() {
   // 정적 생성 페이지 paths
   const staticPaths = ["/", "/saramin", "/jobkorea"];
 
-  // '/foo/bar/baz' => ['foo','bar','baz']
   const getSegment = (staticPath: string) => {
     let segement = staticPath.split("/");
     segement.shift();
