@@ -39,6 +39,7 @@ export default async function jobkorea(
     const $ = cheerio.load(html);
 
     const result = [] as object[];
+    const total = Number($(".recruit-info .dev_tot").text());
 
     $(".list-default .list-post").each((_, item) => {
       const id = $(item).attr("data-gino");
@@ -68,7 +69,7 @@ export default async function jobkorea(
     return res
       .setHeader("Access-Control-Allow-Origin", "*")
       .status(200)
-      .json(result);
+      .json({ result, total });
   } catch (error) {
     console.log(error);
   }

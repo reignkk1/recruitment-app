@@ -2,7 +2,6 @@ import useActiveSection from "@/hooks/useActiveSection";
 import { css } from "@emotion/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
 
 interface PaginationProps {
   total: number;
@@ -14,37 +13,22 @@ export default function Pagination({ total }: PaginationProps) {
   const numbers = Array.from({ length: pageTotal }, (_, pageNumber) =>
     String(pageNumber + 1)
   );
-  // 초기값 slice(0,10)
-  const [pageNumbers, setPageNumbers] = useState<string[]>();
-
   const {
     query: { job = "frontend", career = "junior", page = "1" },
     push,
   } = useRouter();
+  const pageNumbers = numbers.slice(
+    0 + 10 * (Math.ceil(Number(page) / 10) - 1),
+    10 * Math.ceil(Number(page) / 10)
+  );
+
+  const activePrevButton = !pageNumbers.includes(numbers[0]);
+  const activeNextButton = !pageNumbers.includes(numbers[numbers.length - 1]);
 
   const getLinkPageButton = (pageNumber: string) => {
     return `/${section}?job=${job}&career=${career}&page=${pageNumber}`;
   };
 
-  useEffect(() => {
-    setPageNumbers(
-      numbers.slice(
-        0 + 10 * (Math.ceil(Number(page) / 10) - 1),
-        10 * Math.ceil(Number(page) / 10)
-      )
-    );
-  }, [page]);
-
-  const pageButtons = pageNumbers?.map((pageNumber) => {
-    const active = pageNumber === (page || "1");
-    return (
-      <li key={pageNumber} css={ListItem(active)}>
-        <Link href={getLinkPageButton(pageNumber)}>{pageNumber}</Link>
-      </li>
-    );
-  });
-
-  // 이전, 다음 버튼 생겼다 사라졌다 구현
   const handleClickNext = () => {
     push(getLinkPageButton(String(Number(pageNumbers?.slice(-1)) + 1)));
   };
@@ -53,11 +37,28 @@ export default function Pagination({ total }: PaginationProps) {
     push(getLinkPageButton(String(Number(pageNumbers?.slice(0, 1)) - 1)));
   };
 
+  const pageButtons = pageNumbers?.map((pageNumber) => {
+    const active = pageNumber === page;
+    return (
+      <li key={pageNumber} css={ListItem(active)}>
+        <Link href={getLinkPageButton(pageNumber)}>{pageNumber}</Link>
+      </li>
+    );
+  });
+
+  const prevButton = activePrevButton && (
+    <button onClick={handleClickPrev} css={Button}>{`< 이전`}</button>
+  );
+
+  const nextButton = activeNextButton && (
+    <button onClick={handleClickNext} css={Button}>{`다음 >`}</button>
+  );
+
   return (
     <div css={Container}>
-      <button onClick={handleClickPrev} css={Button}>{`< 이전`}</button>
+      {prevButton}
       <ul css={List}>{pageButtons}</ul>
-      <button onClick={handleClickNext} css={Button}>{`다음 >`}</button>
+      {nextButton}
     </div>
   );
 }
@@ -70,6 +71,7 @@ const Container = css`
 
 const List = css`
   display: flex;
+  margin: 0px 20px;
 `;
 
 const ListItem = (active: boolean) => css`
