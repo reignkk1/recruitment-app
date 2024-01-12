@@ -39,7 +39,9 @@ export default async function jobkorea(
     const $ = cheerio.load(html);
 
     const result = [] as object[];
-    const total = Number($(".recruit-info .dev_tot").text());
+    const total = Number(
+      $(".recruit-info .dev_tot").text().split(",").join("")
+    );
 
     $(".list-default .list-post").each((_, item) => {
       const id = $(item).attr("data-gino");

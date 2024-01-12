@@ -13,32 +13,31 @@ interface PostContentProps {
   data: IData;
 }
 
-export default function PostContent({
-  data: { result, total },
-}: PostContentProps) {
-  const [posts, setPosts] = useState<IResult[]>(result);
-  const [loading, setLoading] = useState(true);
+export default function PostContent({ data }: PostContentProps) {
+  const [posts, setPosts] = useState<IResult[]>(data.result);
+  const [total, setTotal] = useState(data.total);
+  const [loading, setLoading] = useState(false);
   const section = useActiveSection();
   const {
     query: { job = "frontend", career = "junior", page = "1" },
     asPath,
   } = useRouter();
+  const isQueryString = asPath.split(/[\?\#]/)[1];
 
   const getFetchPosts = async () => {
     const GET_URI = `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section}?job=${job}&career=${career}&page=${page}`;
     const {
-      data: { result },
+      data: { result, total },
     } = await axios.get(GET_URI);
     setPosts(result);
+    setTotal(total);
     setLoading(false);
   };
 
   useEffect(() => {
-    if (job) {
+    if (isQueryString) {
       setLoading(true);
       getFetchPosts();
-    } else {
-      setPosts(result);
     }
   }, [asPath]);
 

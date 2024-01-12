@@ -42,15 +42,29 @@ export default async function saramin(
       }
     );
 
+    const { data: totalHtml } = await axios(
+      `${DOMAIN}/zf_user/jobs/list/job-category?cat_kewd=${JOB}&exp_cd=${CAREER}&panel_type=&search_optional_item=y&search_done=y&panel_count=y&preview=y&page=1&sort=RD&page_count=20`,
+      {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        },
+      }
+    );
+    // page = 1 일 때만 total을 가져올수 있음
+    const $total = cheerio.load(totalHtml);
     const $ = cheerio.load(html);
 
     const result = [] as object[];
 
-    const total = Number($(".total_count em").text());
+    const total = $total(".total_count em").text().split(",").join("");
 
     $(".list_item").each((_, item) => {
       const id = $(item).attr("id");
-      const title = $(item).find(".notification_info .str_tit span").text();
+      const title = $(item)
+        .find(".notification_info .str_tit span")
+        .text()
+        .trim();
       const link =
         DOMAIN + $(item).find(".notification_info .str_tit").attr("href");
       const companyName = $(item).find(".company_nm .str_tit").text().trim();
