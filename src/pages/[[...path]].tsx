@@ -46,7 +46,6 @@ export async function getStaticProps({ params }: GetStaticPropsContext) {
   if (section === "home") {
     props = {};
   } else {
-    console.log(section);
     const GET_URI = `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section[0]}?job=frontend&career=junior&page=1`;
     const { data } = await axios(GET_URI);
     props = { data };
@@ -57,7 +56,7 @@ export async function getStaticProps({ params }: GetStaticPropsContext) {
 
 export async function getStaticPaths() {
   // 정적 생성 페이지 paths
-  const staticPaths = ["/", "/jobkorea"];
+  const staticPaths = ["/", "/saramin", "/jobkorea"];
 
   const getSegment = (staticPath: string) => {
     let segement = staticPath.split("/");
