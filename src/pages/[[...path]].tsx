@@ -46,6 +46,7 @@ export async function getStaticProps({ params }: GetStaticPropsContext) {
   if (section === "home") {
     props = {};
   } else {
+    console.log(section);
     const GET_URI = `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section[0]}?job=frontend&career=junior&page=1`;
     const { data } = await axios(GET_URI);
     props = { data };

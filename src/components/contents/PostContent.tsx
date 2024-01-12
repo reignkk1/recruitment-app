@@ -17,15 +17,15 @@ export default function PostContent({
   data: { result, total },
 }: PostContentProps) {
   const [posts, setPosts] = useState<IResult[]>(result);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const section = useActiveSection();
   const {
     query: { job = "frontend", career = "junior", page = "1" },
     asPath,
   } = useRouter();
-  const GET_URI = `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section}?job=${job}&career=${career}&page=${page}`;
 
   const getFetchPosts = async () => {
+    const GET_URI = `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section}?job=${job}&career=${career}&page=${page}`;
     const {
       data: { result },
     } = await axios.get(GET_URI);
@@ -39,21 +39,13 @@ export default function PostContent({
       getFetchPosts();
     } else {
       setPosts(result);
-      setLoading(false);
     }
   }, [asPath]);
 
   if (loading) {
-    return (
-      <div
-        css={css`
-          text-align: center;
-        `}
-      >
-        <Image alt="loading" width={600} height={250} src="/loading.gif" />
-      </div>
-    );
+    return <Loading />;
   }
+
   return (
     <div css={Container}>
       <Search />
@@ -66,4 +58,16 @@ export default function PostContent({
 const Container = css`
   width: 1200px;
   margin: 0 auto;
+`;
+
+function Loading() {
+  return (
+    <div css={LoadingContainer}>
+      <Image alt="loading" width={600} height={250} src="/loading.gif" />
+    </div>
+  );
+}
+
+const LoadingContainer = css`
+  text-align: center;
 `;

@@ -4,33 +4,33 @@ import { useRouter } from "next/router";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 
 interface SearchState {
-  job: "backend" | "frontend";
-  career: "junior" | "senior";
+  job?: string | string[];
+  career?: string | string[];
 }
 
 export default function Search() {
-  const [{ job, career }, setState] = useState<SearchState>({
-    job: "frontend",
-    career: "junior",
-  });
-
+  const [search, setSearch] = useState<SearchState>();
   const section = useActiveSection();
-  const router = useRouter();
+  const {
+    query: { job = "frontend", career = "junior" },
+    push,
+    asPath,
+  } = useRouter();
 
   useEffect(() => {
-    setState({
-      job: "frontend",
-      career: "junior",
+    setSearch({
+      job,
+      career,
     });
-  }, [section]);
+  }, [asPath]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    router.push(`/${section}?job=${job}&career=${career}&page=1`);
+    push(`/${section}?job=${search?.job}&career=${search?.career}&page=1`);
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setState((prev) => {
+    setSearch((prev) => {
       return {
         ...prev,
         [e.target.name]: e.target.value,
@@ -39,38 +39,21 @@ export default function Search() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      css={css`
-        display: flex;
-        margin-bottom: 50px;
-        input {
-          margin-right: 10px;
-        }
-        label,
-        input {
-          cursor: pointer;
-        }
-      `}
-    >
+    <form onSubmit={handleSubmit} css={Form}>
       <div>
-        <div
-          css={css`
-            margin-bottom: 5px;
-          `}
-        >
+        <div css={InputRadioContainer}>
           <InputRadio
             name="job"
             label="프론트엔드"
             value="frontend"
-            checked={job === "frontend"}
+            checked={search?.job === "frontend"}
             onChange={handleChange}
           />
           <InputRadio
             name="job"
             label="백엔드"
             value="backend"
-            checked={job === "backend"}
+            checked={search?.job === "backend"}
             onChange={handleChange}
           />
         </div>
@@ -79,33 +62,47 @@ export default function Search() {
             name="career"
             label="신입"
             value="junior"
-            checked={career === "junior"}
+            checked={search?.career === "junior"}
             onChange={handleChange}
           />
           <InputRadio
             name="career"
             label="경력"
             value="senior"
-            checked={career === "senior"}
+            checked={search?.career === "senior"}
             onChange={handleChange}
           />
         </div>
       </div>
-      <button
-        css={css`
-          margin-left: 10px;
-          width: 50px;
-          border-radius: 5px;
-          cursor: pointer;
-          background-color: #5694ff;
-          border: none;
-        `}
-      >
-        검색
-      </button>
+      <button css={SearchButton}>검색</button>
     </form>
   );
 }
+
+const Form = css`
+  display: flex;
+  margin-bottom: 50px;
+  input {
+    margin-right: 10px;
+  }
+  label,
+  input {
+    cursor: pointer;
+  }
+`;
+
+const SearchButton = css`
+  margin-left: 10px;
+  width: 50px;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #5694ff;
+  border: none;
+`;
+
+const InputRadioContainer = css`
+  margin-bottom: 5px;
+`;
 
 interface InputRadioProps {
   label: string;

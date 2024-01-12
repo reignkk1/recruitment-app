@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { css } from "@emotion/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -25,49 +24,43 @@ export default function SideBar() {
     },
   ];
 
-  return (
-    <nav
-      css={css`
-        width: 100px;
-        border-right: 1px solid rgba(0, 0, 0, 0.1);
-        background-color: white;
-        position: fixed;
-        height: 100%;
-        padding: 10px 5px;
-        li {
-          border-radius: 10px;
-          padding: 5px 8px;
-          margin-bottom: 15px;
+  const sideBarItem = sidBarMenu.map(({ link, src, name }, i) => (
+    <li key={i} css={ListItem(link, cleanedPath)}>
+      <a href={link}>
+        <Image alt="menu" src={src} width={15} height={15} />
+        <div>{name}</div>
+      </a>
+    </li>
+  ));
 
-          a {
-            display: flex;
-            align-items: center;
-            font-weight: bold;
-            color: black;
-          }
-        }
-        img {
-          margin-right: 5px;
-        }
-      `}
-    >
-      <ul>
-        {sidBarMenu.map((menu, i) => (
-          <li
-            key={i}
-            css={css`
-              background-color: ${menu.link === cleanedPath
-                ? "rgba(0,0,0,0.1)"
-                : "none"};
-            `}
-          >
-            <a href={menu.link}>
-              <Image alt="menu" src={menu.src} width={15} height={15} />
-              <div>{menu.name}</div>
-            </a>
-          </li>
-        ))}
-      </ul>
+  return (
+    <nav css={Container}>
+      <ul>{sideBarItem}</ul>
     </nav>
   );
 }
+
+const Container = css`
+  width: 100px;
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: white;
+  position: fixed;
+  height: 100%;
+  padding: 10px 5px;
+`;
+
+const ListItem = (menuLink: string, cleanedPath: string) => css`
+  border-radius: 10px;
+  padding: 5px 8px;
+  margin-bottom: 15px;
+  background-color: ${menuLink === cleanedPath ? "rgba(0,0,0,0.1)" : "none"};
+  a {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    color: black;
+  }
+  img {
+    margin-right: 5px;
+  }
+`;

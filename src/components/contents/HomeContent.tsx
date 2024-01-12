@@ -3,16 +3,7 @@ import Image from "next/image";
 
 export default function HomeContent() {
   return (
-    <div
-      css={css`
-        text-align: center;
-        h1 {
-          margin-bottom: 100px;
-          font-size: 24px;
-          font-weight: bold;
-        }
-      `}
-    >
+    <div css={Container}>
       <Image
         alt="banner"
         src="/home-banner.png"
@@ -25,3 +16,12 @@ export default function HomeContent() {
     </div>
   );
 }
+
+const Container = css`
+  text-align: center;
+  h1 {
+    margin-bottom: 100px;
+    font-size: 24px;
+    font-weight: bold;
+  }
+`;

@@ -87,6 +87,6 @@ export default async function saramin(
       .status(200)
       .json({ result, total });
   } catch (error) {
-    console.log(error);
+    return res.status(500).json(error);
   }
 }

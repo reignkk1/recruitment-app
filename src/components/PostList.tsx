@@ -2,10 +2,10 @@ import { css } from "@emotion/react";
 import { useState } from "react";
 import { useEffect } from "react";
 import Link from "next/link";
-import { IData, IResult } from "@/pages/[[...path]]";
+import { IResult } from "@/pages/[[...path]]";
 
 interface PostListProps {
-  posts?: IResult[];
+  posts: IResult[];
 }
 
 export default function PostList({ posts }: PostListProps) {
@@ -29,55 +29,15 @@ export default function PostList({ posts }: PostListProps) {
   }, []);
 
   return (
-    <ul
-      css={css`
-        border-top: 1px solid black;
-      `}
-    >
+    <ul css={List}>
       {posts?.map((post) => (
-        <li
-          key={post.id}
-          css={css`
-            display: flex;
-            justify-content: space-between;
-            padding: 30px 10px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            a {
-              color: black;
-              text-decoration: none;
-              &:hover {
-                border-bottom: 1px solid black;
-              }
-            }
-          `}
-        >
-          <div
-            css={css`
-              margin-right: 150px;
-              width: 150px;
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
-            `}
-          >
+        <li key={post.id} css={ListItem}>
+          <div css={LeftContainer}>
             <Link href={post.company.link} target="_blank">
               {post.company.name}
             </Link>
           </div>
-          <div
-            css={css`
-              width: 600px;
-              font-weight: bold;
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              a {
-                color: ${readed?.includes(post.id)
-                  ? "rgba(0,0,0,0.4)"
-                  : "black"};
-              }
-            `}
-          >
+          <div css={MiddleContainer(readed, post.id)}>
             <Link
               href={post.link}
               target="_blank"
@@ -85,29 +45,9 @@ export default function PostList({ posts }: PostListProps) {
             >
               {post.title}
             </Link>
-            <div
-              css={css`
-                font-size: 12px;
-                color: rgba(0, 0, 0, 0.5);
-                margin-top: 30px;
-                width: 400px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-              `}
-            >
-              {post.etc}
-            </div>
+            <div css={Etc}>{post.etc}</div>
           </div>
-          <div
-            css={css`
-              width: 300px;
-              div {
-                font-size: 13px;
-                margin-bottom: 8px;
-              }
-            `}
-          >
+          <div css={RightContainer}>
             <div>{post.workPlace}</div>
             <div>{post.career}</div>
             <div>{post.education}</div>
@@ -118,3 +58,58 @@ export default function PostList({ posts }: PostListProps) {
     </ul>
   );
 }
+
+const List = css`
+  border-top: 1px solid black;
+`;
+
+const ListItem = css`
+  display: flex;
+  justify-content: space-between;
+  padding: 30px 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  a {
+    color: black;
+    text-decoration: none;
+    &:hover {
+      border-bottom: 1px solid black;
+    }
+  }
+`;
+
+const Etc = css`
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.5);
+  margin-top: 30px;
+  width: 400px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const LeftContainer = css`
+  margin-right: 150px;
+  width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const MiddleContainer = (readed?: string[], postId?: string) => css`
+  width: 600px;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  a {
+    color: ${readed?.includes(postId || "") ? "rgba(0,0,0,0.4)" : "black"};
+  }
+`;
+
+const RightContainer = css`
+  width: 300px;
+  div {
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+`;
