@@ -57,7 +57,7 @@ export async function getStaticProps({ params }: GetStaticPropsContext) {
 
 export async function getStaticPaths() {
   // 정적 생성 페이지 paths
-  const staticPaths = ["/", "/saramin", "/jobkorea"];
+  const staticPaths = ["/", "/jobkorea"];
 
   const getSegment = (staticPath: string) => {
     let segement = staticPath.split("/");
