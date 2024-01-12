@@ -1,7 +1,24 @@
+import useActiveSection from "@/hooks/useActiveSection";
 import Head from "next/head";
 
 export default function Seo() {
-  const title = "asdf";
+  const section = useActiveSection();
+  let title;
+
+  switch (section) {
+    case "home":
+      title = "흠";
+      break;
+    case "jobkorea":
+      title = "잡코리아";
+      break;
+    case "saramin":
+      title = "사람인";
+      break;
+    default:
+      title = "404 Error";
+  }
+
   return (
     <Head>
       <title>{title + " | Recruitment"}</title>
