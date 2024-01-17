@@ -36,6 +36,7 @@ export default function Layout({ data }: { data: IData }) {
       break;
   }
 
+  // 이제 디자인 구현하기
   return <Page>{content}</Page>;
 }
 
