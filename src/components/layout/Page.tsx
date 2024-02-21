@@ -26,6 +26,6 @@ const Main = css`
 `;
 
 const Content = css`
-  width: 85%;
+  width: 100%;
   padding: 50px 50px 50px 150px;
 `;
