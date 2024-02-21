@@ -32,12 +32,15 @@ export default function Layout({ data }: { data: IData }) {
       break;
     case "jobkorea":
     case "saramin":
-      content = <PostContent data={data} />;
+      content = (
+        <Page>
+          <PostContent data={data} />
+        </Page>
+      );
       break;
   }
 
-  // 이제 디자인 구현하기
-  return <Page>{content}</Page>;
+  return content;
 }
 
 export async function getStaticProps({ params }: GetStaticPropsContext) {
