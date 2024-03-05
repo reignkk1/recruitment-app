@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import Link from "next/link";
 import { IResult } from "@/pages/[[...path]]";
+import parserLocalStorage from "parser-localstorage";
 
 interface PostListProps {
   posts: IResult[];
@@ -10,22 +11,16 @@ interface PostListProps {
 
 export default function PostList({ posts }: PostListProps) {
   const [readed, setReaded] = useState<string[]>();
-  const getItem = () => {
-    if (window) return JSON.parse(localStorage.getItem("readed") || "[]");
-  };
 
   const handelTitleClick = (postId: string) => {
     if (!readed?.includes(postId)) {
-      localStorage.setItem(
-        "readed",
-        JSON.stringify([...(readed || []), postId])
-      );
-      setReaded(getItem());
+      parserLocalStorage.set("readed", [...(readed || []), postId]);
+      setReaded(parserLocalStorage.get("readed"));
     }
   };
 
   useEffect(() => {
-    setReaded(getItem());
+    setReaded(parserLocalStorage.get("readed"));
   }, []);
 
   return (
