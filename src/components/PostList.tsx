@@ -32,7 +32,7 @@ export default function PostList({ posts }: PostListProps) {
               {post.company.name}
             </Link>
           </div>
-          <div css={MiddleContainer(readed, post.id)}>
+          <div css={MiddleContainer(readed || [], post.id)}>
             <Link
               href={post.link}
               target="_blank"
