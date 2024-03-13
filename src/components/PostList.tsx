@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import Link from "next/link";
 import { IResult } from "@/pages/[[...path]]";
-import parserLocalStorage from "parser-localstorage";
+import { parserLocalStorage } from "parser-storages";
 
 interface PostListProps {
   posts: IResult[];
