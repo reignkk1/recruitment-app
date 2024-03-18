@@ -54,9 +54,7 @@ export default function PostList({ posts }: PostListProps) {
   );
 }
 
-const List = css`
-  border-top: 1px solid black;
-`;
+const List = css``;
 
 const ListItem = css`
   display: flex;

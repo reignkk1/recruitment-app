@@ -3,133 +3,93 @@ import { css } from "@emotion/react";
 import { useRouter } from "next/router";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 
-interface SearchState {
-  job?: string | string[];
-  career?: string | string[];
-}
-
 export default function Search() {
-  const [search, setSearch] = useState<SearchState>();
-  const section = useActiveSection();
-  const {
-    query: { job = "frontend", career = "junior" },
-    push,
-    asPath,
-  } = useRouter();
+  const [{ section, job, career }, setOpen] = useState({
+    section: false,
+    job: false,
+    career: false,
+  });
 
-  useEffect(() => {
-    setSearch({
-      job,
-      career,
+  const handleClickSection = () =>
+    setOpen((prev) => {
+      return { section: !prev.section, job: false, career: false };
     });
-  }, [asPath]);
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    push(`/${section}?job=${search?.job}&career=${search?.career}&page=1`);
-  };
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearch((prev) => {
-      return {
-        ...prev,
-        [e.target.name]: e.target.value,
-      };
+  const handleClickJob = () =>
+    setOpen((prev) => {
+      return { section: false, job: !prev.job, career: false };
     });
-  };
+  const handleClickCareer = () =>
+    setOpen((prev) => {
+      return { section: false, job: false, career: !prev.career };
+    });
 
   return (
-    <form onSubmit={handleSubmit} css={Form}>
-      <div>
-        <div css={InputRadioContainer}>
-          <InputRadio
-            name="job"
-            label="프론트엔드"
-            value="frontend"
-            checked={search?.job === "frontend"}
-            onChange={handleChange}
-          />
-          <InputRadio
-            name="job"
-            label="백엔드"
-            value="backend"
-            checked={search?.job === "backend"}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <InputRadio
-            name="career"
-            label="신입"
-            value="junior"
-            checked={search?.career === "junior"}
-            onChange={handleChange}
-          />
-          <InputRadio
-            name="career"
-            label="경력"
-            value="senior"
-            checked={search?.career === "senior"}
-            onChange={handleChange}
-          />
-        </div>
-      </div>
-      <button css={SearchButton}>검색</button>
-    </form>
+    <div css={SearchHeader}>
+      <SelectBox open={section} onClick={handleClickSection}>
+        채용사이트 | 전체 ▼
+      </SelectBox>
+      <SelectBox open={job} onClick={handleClickJob}>
+        개발직군 | 프론트엔드 ▼
+      </SelectBox>
+      <SelectBox open={career} onClick={handleClickCareer}>
+        경력조건 | 신입 ▼
+      </SelectBox>
+    </div>
   );
 }
 
-const Form = css`
+const SearchHeader = css`
+  height: 100px;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  margin-bottom: 50px;
-  input {
-    margin-right: 10px;
-  }
-  label,
-  input {
-    cursor: pointer;
-  }
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 `;
 
-const SearchButton = css`
-  margin-left: 10px;
-  width: 50px;
-  border-radius: 5px;
-  cursor: pointer;
-  background-color: #5694ff;
-  border: none;
-`;
-
-const InputRadioContainer = css`
-  margin-bottom: 5px;
-`;
-
-interface InputRadioProps {
-  label: string;
-  value: string;
-  onChange(e: ChangeEvent<HTMLInputElement>): void;
-  checked: boolean;
-  name: string;
+interface SelectBoxProps {
+  children: React.ReactNode;
+  open: boolean;
+  onClick(): void;
 }
 
-function InputRadio({
-  name,
-  label,
-  value,
-  onChange,
-  checked,
-}: InputRadioProps) {
+function SelectBox({ children, open, onClick }: SelectBoxProps) {
   return (
-    <>
-      <label htmlFor={value}>{label}</label>
-      <input
-        id={value}
-        name={name}
-        type="radio"
-        value={value}
-        checked={checked}
-        onChange={onChange}
-      />
-    </>
+    <div>
+      <div onClick={onClick} css={SearchDiv}>
+        {children}
+      </div>
+      {open && <SelectModal />}
+    </div>
   );
 }
+
+function SelectModal() {
+  return <div css={SelectDiv}></div>;
+}
+
+const SearchDiv = css`
+  width: 200px;
+  margin-right: 50px;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  padding: 10px 20px;
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+`;
+
+const SelectDiv = css`
+  position: absolute;
+  margin-left: 20px;
+  margin-top: 10px;
+  width: 200px;
+  height: 100px;
+  border: 1px solid black;
+  border-radius: 10px;
+  background-color: white;
+`;

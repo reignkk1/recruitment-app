@@ -1,6 +1,5 @@
 import HomeContent from "@/components/contents/HomeContent";
 import PostContent from "@/components/contents/PostContent";
-import Page from "@/components/layout/Page";
 import useActiveSection from "@/hooks/useActiveSection";
 import axios from "axios";
 import { GetStaticPropsContext } from "next";
@@ -17,12 +16,12 @@ export interface IResult {
   deadLines: string;
 }
 
-export interface IData {
+export interface IPosts {
   result: IResult[];
   total: number;
 }
 
-export default function Layout({ data }: { data: IData }) {
+export default function Layout({ data: posts }: { data: IPosts }) {
   const section = useActiveSection();
   let content;
 
@@ -32,11 +31,7 @@ export default function Layout({ data }: { data: IData }) {
       break;
     case "jobkorea":
     case "saramin":
-      content = (
-        <Page>
-          <PostContent data={data} />
-        </Page>
-      );
+      content = <PostContent posts={posts} />;
       break;
   }
 
