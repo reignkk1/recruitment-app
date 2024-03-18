@@ -1,7 +1,6 @@
 import { css } from "@emotion/react";
 import Header from "./Header";
 import SideBar from "./SideBar";
-import Seo from "../Seo";
 
 interface PageProps {
   children: React.ReactNode;
@@ -10,7 +9,6 @@ interface PageProps {
 export default function Page({ children }: PageProps) {
   return (
     <>
-      <Seo />
       <Header />
       <main css={Main}>
         <SideBar />
