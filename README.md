@@ -1,6 +1,6 @@
 # Recruitment-app
 
-<a target='_blank' href='https://nextjs-app-pi-lyart.vercel.app/'>[🌍 배포 링크]</a>
+<a target='_blank' href='https://recruitment-dev.vercel.app/'>[🌍 배포 링크]</a>
 
 ## 프로젝트 시작하게 된 이유
 
