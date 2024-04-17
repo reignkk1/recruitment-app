@@ -1,4 +1,4 @@
-import useActiveSection from "@/hooks/useActiveSection";
+import useActiveSection from "@/hooks/useActiveSite";
 import Head from "next/head";
 
 export default function Seo() {

@@ -1,6 +1,6 @@
 import HomeContent from "@/components/contents/HomeContent";
 import PostContent from "@/components/contents/PostContent";
-import useActiveSection from "@/hooks/useActiveSection";
+import useActiveSection from "@/hooks/useActiveSite";
 import axios from "axios";
 import { GetStaticPropsContext } from "next";
 

@@ -7,7 +7,7 @@ import { IPosts, IResult } from "@/pages/[[...path]]";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Pagination from "../Pagination";
-import useActiveSection from "@/hooks/useActiveSection";
+import useActiveSection from "@/hooks/useActiveSite";
 
 export default function PostContent({ posts }: { posts: IPosts }) {
   return (

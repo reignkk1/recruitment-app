@@ -1,4 +1,4 @@
-import useActiveSection from "@/hooks/useActiveSection";
+import useActiveSection from "@/hooks/useActiveSite";
 import { css } from "@emotion/react";
 import Link from "next/link";
 import { useRouter } from "next/router";

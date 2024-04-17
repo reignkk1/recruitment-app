@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 
-export default function useActiveSection() {
+export default function useActiveSite() {
   const { asPath } = useRouter();
   const cleanedPath = asPath.split(/[\?\#]/)[0];
 
