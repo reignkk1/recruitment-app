@@ -1,5 +1,5 @@
-import { CheckedContext, ModalContext } from "@/context";
-import useActiveSection from "@/hooks/useActiveSite";
+import { CheckedContext, QueryContext } from "@/context";
+import useChecked from "@/hooks/useChecked";
 import useModal from "@/hooks/useModal";
 import useQuery from "@/hooks/useQuery";
 import {
@@ -9,14 +9,23 @@ import {
 } from "@/utils";
 import { css } from "@emotion/react";
 import { useRouter } from "next/router";
-import { Children, FormEvent, ReactNode, useContext, useState } from "react";
+import {
+  ChangeEvent,
+  FormEvent,
+  ReactNode,
+  useContext,
+  useDeferredValue,
+  useEffect,
+  useState,
+} from "react";
 
 interface SelecterCategoryProps {
   label: string;
   onClick: () => void;
+  isModal: boolean;
 }
 
-interface SelectBoxProps {
+interface SelecterProps {
   children: React.ReactNode;
   onClick: () => void;
   label: string;
@@ -27,11 +36,20 @@ interface SelectModalProps {
   children: ReactNode;
 }
 
+interface SelectOptionProps {
+  children: string;
+  id: string;
+}
+
+interface SelectTitleProps {
+  children: ReactNode;
+}
+
 export default function Search() {
-  const [modal, openModal] = useModal();
+  const [isModal, openModal] = useModal();
   const { site, job, career } = useQuery();
 
-  const siteLabel = `채용 사이트 | ${site}}`;
+  const siteLabel = `채용 사이트 | ${site}`;
   const jobLabel = `개발 | ${job}`;
   const careerLabel = `경력 | ${career}`;
 
@@ -40,44 +58,53 @@ export default function Search() {
   const openCareerModal = () => openModal("career");
 
   return (
-    <ModalContext.Provider value={modal}>
-      <div css={SearchHeader}>
-        <SelecterSite label={siteLabel} onClick={openSiteModal} />
-        <SelecterJob label={jobLabel} onClick={openJobModal} />
-        <SelecterCareer label={careerLabel} onClick={openCareerModal} />
-      </div>
-    </ModalContext.Provider>
+    <div css={SearchHeader}>
+      <SelecterSite
+        label={siteLabel}
+        isModal={isModal.site}
+        onClick={openSiteModal}
+      />
+      <SelecterJob
+        label={jobLabel}
+        isModal={isModal.job}
+        onClick={openJobModal}
+      />
+      <SelecterCareer
+        label={careerLabel}
+        isModal={isModal.career}
+        onClick={openCareerModal}
+      />
+    </div>
   );
 }
 
-function SelecterSite({ label, onClick }: SelecterCategoryProps) {
-  const modal = useContext(ModalContext);
-
+function SelecterSite({ label, onClick, isModal }: SelecterCategoryProps) {
   return (
     <Selecter label={label} onClick={onClick}>
-      <Selecter.modal open={modal.site}>
+      <Selecter.modal open={isModal}>
+        <Selecter.title>채용 사이트</Selecter.title>
         <Selecter.option id="saramin">사람인</Selecter.option>
         <Selecter.option id="jobkorea">잡코리아</Selecter.option>
       </Selecter.modal>
     </Selecter>
   );
 }
-function SelecterJob({ label, onClick }: SelecterCategoryProps) {
-  const modal = useContext(ModalContext);
+function SelecterJob({ label, onClick, isModal }: SelecterCategoryProps) {
   return (
     <Selecter label={label} onClick={onClick}>
-      <Selecter.modal open={modal.job}>
+      <Selecter.modal open={isModal}>
+        <Selecter.title>개발</Selecter.title>
         <Selecter.option id="frontend">프론트엔드</Selecter.option>
         <Selecter.option id="backend">백엔드</Selecter.option>
       </Selecter.modal>
     </Selecter>
   );
 }
-function SelecterCareer({ label, onClick }: SelecterCategoryProps) {
-  const modal = useContext(ModalContext);
+function SelecterCareer({ label, onClick, isModal }: SelecterCategoryProps) {
   return (
     <Selecter label={label} onClick={onClick}>
-      <Selecter.modal open={modal.career}>
+      <Selecter.modal open={isModal}>
+        <Selecter.title>경력</Selecter.title>
         <Selecter.option id="junior">신입</Selecter.option>
         <Selecter.option id="senior">1년 이상</Selecter.option>
       </Selecter.modal>
@@ -85,7 +112,7 @@ function SelecterCareer({ label, onClick }: SelecterCategoryProps) {
   );
 }
 
-function Selecter({ children, onClick, label }: SelectBoxProps) {
+function Selecter({ children, onClick, label }: SelecterProps) {
   return (
     <div>
       <div onClick={onClick} css={SelectBar}>
@@ -96,20 +123,12 @@ function Selecter({ children, onClick, label }: SelectBoxProps) {
   );
 }
 
+Selecter.title = function SelectTitle({ children }: SelectTitleProps) {
+  return <div>{children}</div>;
+};
+
 Selecter.modal = function SelectModal({ children, open }: SelectModalProps) {
-  const initialState = {};
-  const [] = useState();
-  const selectOptionTexts: string[] = [];
-
-  Children.forEach(children, (element: any, idx) => {
-    if (idx > 0) {
-      selectOptionTexts.push(element.props.children);
-    }
-  });
-
-  if (new Set(selectOptionTexts).size !== selectOptionTexts.length) {
-    throw new Error("Selecter Props options 배열에 중복되는 값이 존재합니다.");
-  }
+  const [checkedId, setCheckedId] = useState<string>("");
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -119,7 +138,7 @@ Selecter.modal = function SelectModal({ children, open }: SelectModalProps) {
   if (!open) return null;
 
   return (
-    <CheckedContext.Provider value={checked}>
+    <CheckedContext.Provider value={{ checkedId, setCheckedId }}>
       <div css={SelectDiv}>
         <form onSubmit={handleSubmit}>
           {children}
@@ -130,31 +149,20 @@ Selecter.modal = function SelectModal({ children, open }: SelectModalProps) {
   );
 };
 
-function SelectTitle({ children }: { children: ReactNode }) {
-  return <div>{children}</div>;
-}
+Selecter.option = function SelectOption({ children, id }: SelectOptionProps) {
+  const [checkedId, setCheckedId] = useChecked();
 
-Selecter.option = function SelectOption({
-  children,
-  id,
-}: {
-  children: string;
-  id: string;
-}) {
-  const [checked, setChecked] = useContext<any>(CheckedContext);
-  const { query } = useRouter();
-  const site = convertSiteString((query.path || [])[0]);
-  const job = convertJobString(query.job || "frontend");
-  const career = convertCareerString(query.career || "junior");
-  const data = { site, job, career };
+  const onChange = () => {
+    setCheckedId(id);
+  };
 
   return (
     <div css={SelectOptionContainer}>
       <input
         id={id}
         type="checkbox"
-        onClick={() => setChecked(id)}
-        checked={checked === id}
+        onChange={onChange}
+        checked={checkedId === id}
       />
       <label htmlFor={id}>{children}</label>
     </div>

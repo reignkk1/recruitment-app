@@ -1,23 +1,12 @@
 import { Dispatch, SetStateAction, createContext } from "react";
 
-type CheckedContextType = [
-  string | undefined,
-  Dispatch<SetStateAction<string | undefined>>
-];
+interface CheckedContextType {
+  checkedId: string;
+  setCheckedId: Dispatch<SetStateAction<string>>;
+}
 
-type ModalContextType = {
-  site: boolean;
-  job: boolean;
-  career: boolean;
-};
+type QueryContextType = string | string[] | null;
 
-export const CheckedContext = createContext<CheckedContextType>([
-  undefined,
-  () => undefined,
-]);
+export const CheckedContext = createContext<CheckedContextType | null>(null);
 
-export const ModalContext = createContext<ModalContextType>({
-  site: false,
-  job: false,
-  career: false,
-});
+export const QueryContext = createContext<QueryContextType>(null);

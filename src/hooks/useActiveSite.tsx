@@ -10,5 +10,7 @@ export default function useActiveSite() {
     return "saramin";
   } else if (cleanedPath === "/jobkorea") {
     return "jobkorea";
+  } else {
+    return null;
   }
 }

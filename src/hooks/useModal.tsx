@@ -1,5 +1,11 @@
 import { useState } from "react";
 
+/**
+ *
+ *
+ * @returns 모달상태와 모달을 여는 함수를 반환한다.
+ */
+
 export default function useModal() {
   const initialState = {
     site: false,
