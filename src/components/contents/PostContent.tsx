@@ -7,7 +7,7 @@ import { IPosts, IResult } from "@/pages/[[...path]]";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Pagination from "../Pagination";
-import useActiveSection from "@/hooks/useActiveSite";
+import { useQuery } from "@/hooks";
 
 export default function PostContent({ posts }: { posts: IPosts }) {
   return (
@@ -22,7 +22,7 @@ function PostListContainer({ posts }: { posts: IPosts }) {
   const [total, setTotal] = useState(posts?.total);
   const [curPosts, setCurPosts] = useState<IResult[]>(posts?.result);
   const [loading, setLoading] = useState(false);
-  const section = useActiveSection();
+  const { section } = useQuery();
   const {
     query: { job = "frontend", career = "junior", page = "1" },
     asPath,
@@ -44,7 +44,7 @@ function PostListContainer({ posts }: { posts: IPosts }) {
       setLoading(true);
       getFetchPosts();
     }
-  }, [asPath]);
+  }, [asPath, getFetchPosts, isQueryString]);
 
   if (loading) {
     return <Loading />;

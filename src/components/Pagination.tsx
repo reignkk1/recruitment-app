@@ -1,4 +1,4 @@
-import useActiveSection from "@/hooks/useActiveSite";
+import { useQuery } from "@/hooks";
 import { css } from "@emotion/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -8,7 +8,7 @@ interface PaginationProps {
 }
 
 export default function Pagination({ total }: PaginationProps) {
-  const section = useActiveSection();
+  const { section } = useQuery();
   const pageTotal = Math.ceil(total / 20);
   const numbers = Array.from({ length: pageTotal }, (_, pageNumber) =>
     String(pageNumber + 1)

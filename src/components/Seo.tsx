@@ -1,11 +1,11 @@
-import useActiveSection from "@/hooks/useActiveSite";
+import { useQuery } from "@/hooks";
 import Head from "next/head";
 
 export default function Seo() {
-  const section = useActiveSection();
+  const { site } = useQuery();
   let title;
 
-  switch (section) {
+  switch (site) {
     case "home":
       title = "흠";
       break;

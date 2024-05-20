@@ -11,7 +11,9 @@ export default function HomeContent() {
         <div css={Nav}>
           <div>
             <a href={"/saramin"}>
-              <img
+              <Image
+                width={250}
+                height={150}
                 src="https://www.saramincorp.co.kr/resources/image/og.png"
                 alt="사람인"
               />
@@ -19,7 +21,9 @@ export default function HomeContent() {
           </div>
           <div>
             <a href={"/jobkorea"}>
-              <img
+              <Image
+                width={250}
+                height={150}
                 src="https://oopy.lazyrockets.com/api/rest/cdn/image/0821aa81-6c17-485e-98b4-9589a62e7ae2.png"
                 alt="잡코리아"
               />
@@ -222,8 +226,6 @@ const Nav = css`
   justify-content: center;
   div {
     img {
-      width: 250px;
-      height: 150px;
       border-radius: 10px;
       cursor: pointer;
       &:hover {

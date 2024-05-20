@@ -1,6 +1,6 @@
 import HomeContent from "@/components/contents/HomeContent";
 import PostContent from "@/components/contents/PostContent";
-import useActiveSection from "@/hooks/useActiveSite";
+import { useQuery } from "@/hooks";
 import axios from "axios";
 import { GetStaticPropsContext } from "next";
 
@@ -22,7 +22,8 @@ export interface IPosts {
 }
 
 export default function Layout({ data: posts }: { data: IPosts }) {
-  const section = useActiveSection();
+  const { section } = useQuery();
+
   let content;
 
   switch (section) {
@@ -54,7 +55,6 @@ export async function getStaticProps({ params }: GetStaticPropsContext) {
 }
 
 export async function getStaticPaths() {
-  // 정적 생성 페이지 paths
   const staticPaths = ["/", "/saramin", "/jobkorea"];
 
   const getSegment = (staticPath: string) => {

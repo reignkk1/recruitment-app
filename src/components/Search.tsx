@@ -1,236 +1,259 @@
-import { CheckedContext, QueryContext } from "@/context";
-import useChecked from "@/hooks/useChecked";
-import useModal from "@/hooks/useModal";
-import useQuery from "@/hooks/useQuery";
+import { SelectorDataContext, SelectorModalContext } from "@/context";
 import {
-  convertCareerString,
-  convertJobString,
-  convertSiteString,
-} from "@/utils";
+  useCreateModal,
+  useCreateOptions,
+  useModal,
+  useQuery,
+  useSelectorData,
+} from "@/hooks";
+import { SelectorData } from "@/types";
 import { css } from "@emotion/react";
 import { useRouter } from "next/router";
-import {
-  ChangeEvent,
-  FormEvent,
-  ReactNode,
-  useContext,
-  useDeferredValue,
-  useEffect,
-  useState,
-} from "react";
+import { FormEvent } from "react";
 
-interface SelecterCategoryProps {
-  label: string;
-  onClick: () => void;
-  isModal: boolean;
-}
-
-interface SelecterProps {
-  children: React.ReactNode;
-  onClick: () => void;
-  label: string;
-}
-
-interface SelectModalProps {
-  open: boolean;
-  children: ReactNode;
-}
-
-interface SelectOptionProps {
-  children: string;
+interface CheckBoxProps {
+  onChange: () => void;
+  text: string;
+  checked: boolean;
   id: string;
 }
 
-interface SelectTitleProps {
-  children: ReactNode;
-}
-
 export default function Search() {
-  const [isModal, openModal] = useModal();
-  const { site, job, career } = useQuery();
+  const { Container } = SearchStyles;
 
-  const siteLabel = `채용 사이트 | ${site}`;
-  const jobLabel = `개발 | ${job}`;
-  const careerLabel = `경력 | ${career}`;
+  const selectorData: SelectorData[] = [
+    {
+      categoryId: "section",
+      label: `채용 사이트`,
+      modalTitle: "채용 사이트",
+      options: [
+        { id: "saramin", text: "사람인" },
+        { id: "jobkorea", text: "잡코리아" },
+      ],
+    },
+    {
+      categoryId: "job",
+      label: `개발`,
+      modalTitle: "개발",
+      options: [
+        { id: "frontend", text: "프론트엔드" },
+        { id: "backend", text: "백엔드" },
+      ],
+    },
+    {
+      categoryId: "career",
+      label: `경력`,
+      modalTitle: "경력",
+      options: [
+        { id: "junior", text: "신입" },
+        { id: "senior", text: "1년 이상" },
+      ],
+    },
+  ];
 
-  const openSiteModal = () => openModal("site");
-  const openJobModal = () => openModal("job");
-  const openCareerModal = () => openModal("career");
+  const modalState = useCreateModal(selectorData);
 
   return (
-    <div css={SearchHeader}>
-      <SelecterSite
-        label={siteLabel}
-        isModal={isModal.site}
-        onClick={openSiteModal}
-      />
-      <SelecterJob
-        label={jobLabel}
-        isModal={isModal.job}
-        onClick={openJobModal}
-      />
-      <SelecterCareer
-        label={careerLabel}
-        isModal={isModal.career}
-        onClick={openCareerModal}
-      />
+    <div css={Container}>
+      {selectorData.map((data, index) => (
+        <SelectorDataContext.Provider value={data} key={data.categoryId}>
+          <SelectorModalContext.Provider value={modalState}>
+            <Selector />
+          </SelectorModalContext.Provider>
+        </SelectorDataContext.Provider>
+      ))}
     </div>
   );
 }
 
-function SelecterSite({ label, onClick, isModal }: SelecterCategoryProps) {
-  return (
-    <Selecter label={label} onClick={onClick}>
-      <Selecter.modal open={isModal}>
-        <Selecter.title>채용 사이트</Selecter.title>
-        <Selecter.option id="saramin">사람인</Selecter.option>
-        <Selecter.option id="jobkorea">잡코리아</Selecter.option>
-      </Selecter.modal>
-    </Selecter>
-  );
-}
-function SelecterJob({ label, onClick, isModal }: SelecterCategoryProps) {
-  return (
-    <Selecter label={label} onClick={onClick}>
-      <Selecter.modal open={isModal}>
-        <Selecter.title>개발</Selecter.title>
-        <Selecter.option id="frontend">프론트엔드</Selecter.option>
-        <Selecter.option id="backend">백엔드</Selecter.option>
-      </Selecter.modal>
-    </Selecter>
-  );
-}
-function SelecterCareer({ label, onClick, isModal }: SelecterCategoryProps) {
-  return (
-    <Selecter label={label} onClick={onClick}>
-      <Selecter.modal open={isModal}>
-        <Selecter.title>경력</Selecter.title>
-        <Selecter.option id="junior">신입</Selecter.option>
-        <Selecter.option id="senior">1년 이상</Selecter.option>
-      </Selecter.modal>
-    </Selecter>
-  );
-}
+function Selector() {
+  const { Container, Label } = SelectorStyles;
+  const { categoryId, label } = useSelectorData();
+  const { modal, openModal } = useModal();
+  const query = useQuery();
+  const category = query[categoryId];
 
-function Selecter({ children, onClick, label }: SelecterProps) {
+  const isModal = modal[categoryId];
+
+  const onClick = () => {
+    openModal(categoryId);
+  };
+
   return (
-    <div>
-      <div onClick={onClick} css={SelectBar}>
-        {label}
+    <div css={Container}>
+      <div onClick={onClick} css={Label}>
+        {label + " | " + category}
       </div>
-      {children}
+      {isModal && <Modal />}
     </div>
   );
 }
 
-Selecter.title = function SelectTitle({ children }: SelectTitleProps) {
-  return <div>{children}</div>;
-};
+function Modal() {
+  const { Container } = ModalStyles;
+  const { modalTitle } = useSelectorData();
+  return (
+    <div css={Container}>
+      <div>{modalTitle}</div>
+      <ModalForm />
+    </div>
+  );
+}
 
-Selecter.modal = function SelectModal({ children, open }: SelectModalProps) {
-  const [checkedId, setCheckedId] = useState<string>("");
+function ModalForm() {
+  const { Button } = ModalFormStyles;
+  const { asPath, push, replace } = useRouter();
+
+  const { options, categoryId } = useSelectorData();
+  const { closeAllModal } = useModal();
+  const query = useQuery();
+  const categoryValue = query[categoryId];
+  const { option, setOption, initialState } = useCreateOptions(
+    options,
+    categoryValue
+  );
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("gd");
+    const trueValueIndex = Object.values(option).findIndex(
+      (value) => value === true
+    );
+    const keyValueTrue = Object.keys(option)[trueValueIndex];
+    const cleanedPath = asPath.split(/[?]/);
+    const queryString = cleanedPath[1];
+
+    console.log(asPath);
+
+    if (categoryId === "section") {
+      if (!queryString) {
+        window.location.assign(`/${keyValueTrue}`);
+      } else {
+        window.location.assign(`/${keyValueTrue}?${queryString}`);
+      }
+    } else if (!queryString) {
+      push(`?${categoryId}=${keyValueTrue}`);
+    } else {
+      const queryStringArray = queryString.split("&");
+      const currentCategoryIndex = queryStringArray.findIndex((string) =>
+        string.includes(categoryId)
+      );
+      queryStringArray.splice(
+        currentCategoryIndex,
+        1,
+        `${categoryId}=${keyValueTrue}`
+      );
+      push(`/${query.section}?${queryStringArray.join("&")}`);
+    }
+    closeAllModal();
   };
 
-  if (!open) return null;
+  //
 
   return (
-    <CheckedContext.Provider value={{ checkedId, setCheckedId }}>
-      <div css={SelectDiv}>
-        <form onSubmit={handleSubmit}>
-          {children}
-          <button css={SelectButton}>완료</button>
-        </form>
-      </div>
-    </CheckedContext.Provider>
+    <form onSubmit={handleSubmit}>
+      {options.map(({ id, text }) => {
+        return (
+          <CheckBox
+            key={id}
+            id={id}
+            onChange={() => setOption({ ...initialState, [id]: true })}
+            checked={option[id]}
+            text={text}
+          />
+        );
+      })}
+      <button css={Button}>완료</button>
+    </form>
   );
-};
+}
 
-Selecter.option = function SelectOption({ children, id }: SelectOptionProps) {
-  const [checkedId, setCheckedId] = useChecked();
-
-  const onChange = () => {
-    setCheckedId(id);
-  };
+function CheckBox({ id, onChange, checked, text }: CheckBoxProps) {
+  const { Container } = CheckBoxStyles;
 
   return (
-    <div css={SelectOptionContainer}>
-      <input
-        id={id}
-        type="checkbox"
-        onChange={onChange}
-        checked={checkedId === id}
-      />
-      <label htmlFor={id}>{children}</label>
+    <div css={Container}>
+      <input id={id} type="checkbox" onChange={onChange} checked={checked} />
+      <label htmlFor={id}>{text}</label>
     </div>
   );
+}
+
+const SearchStyles = {
+  Container: css`
+    height: 100px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    user-select: none;
+  `,
 };
 
-const SearchHeader = css`
-  height: 100px;
-  width: 100%;
-  position: fixed;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: white;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  user-select: none;
-`;
-
-const SelectBar = css`
-  width: 200px;
-  margin-right: 50px;
-  border: 1px solid rgba(0, 0, 0, 0.4);
-  padding: 10px 20px;
-  border-radius: 10px;
-  position: relative;
-  cursor: pointer;
-`;
-
-const SelectDiv = css`
-  position: absolute;
-  margin-top: 5px;
-  margin-left: 10px;
-  width: 200px;
-  height: 130px;
-  border: 1px solid black;
-  border-radius: 10px;
-  background-color: white;
-  padding: 10px;
-  div {
-    margin-bottom: 8px;
-  }
-  form label {
-    display: block;
-    width: 100%;
+const SelectorStyles = {
+  Container: css`
+    position: relative;
+  `,
+  Label: css`
+    width: 200px;
+    margin-right: 50px;
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    border-radius: 10px;
+    padding: 10px 20px;
     cursor: pointer;
-  }
-  form div {
-    display: flex;
-    padding: 5px;
+  `,
+};
+
+const ModalStyles = {
+  Container: css`
+    position: absolute;
+    top: 25px;
+    left: 10px;
+    margin-top: 15px;
+    margin-right: 20px;
+    width: 200px;
+    height: 130px;
+    border: 1px solid black;
+    border-radius: 10px;
+    background-color: white;
+    padding: 10px;
+    div {
+      margin-bottom: 8px;
+    }
+    form label {
+      display: block;
+      width: 100%;
+      cursor: pointer;
+    }
+    form div {
+      display: flex;
+      padding: 5px;
+      border-radius: 5px;
+    }
+  `,
+};
+
+const ModalFormStyles = {
+  Button: css`
+    background-color: #3f83f8;
+    outline: none;
+    padding: 5px 15px;
+    width: 100%;
+    border: none;
+    cursor: pointer;
     border-radius: 5px;
-  }
-`;
+  `,
+};
 
-const SelectButton = css`
-  background-color: #3f83f8;
-  outline: none;
-  padding: 5px 15px;
-  width: 100%;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-`;
-
-const SelectOptionContainer = css`
-  &:hover {
-    background-color: rgba(118, 118, 118, 0.1);
-  }
-`;
+const CheckBoxStyles = {
+  Container: css`
+    &:hover {
+      background-color: rgba(118, 118, 118, 0.1);
+    }
+  `,
+};
