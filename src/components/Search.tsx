@@ -1,88 +1,60 @@
-import { SelectorDataContext, SelectorModalContext } from "@/context";
 import {
-  useCreateModal,
-  useCreateOptions,
+  SelectorDataContext,
+  SelectorModalContext,
+  SelectorValueContext,
+} from "@/context";
+import {
+  useCreateModalState,
+  useCreateOptionsState,
+  useCreateValueState,
   useModal,
-  useQuery,
   useSelectorData,
+  useValue,
 } from "@/hooks";
-import { SelectorData } from "@/types";
+import { CheckBoxProps } from "@/types";
 import { css } from "@emotion/react";
 import { useRouter } from "next/router";
 import { FormEvent } from "react";
 
-interface CheckBoxProps {
-  onChange: () => void;
-  text: string;
-  checked: boolean;
-  id: string;
-}
+import selectorsData from "../selectorsData.json";
 
 export default function Search() {
   const { Container } = SearchStyles;
+  const { data: selectors } = selectorsData;
 
-  const selectorData: SelectorData[] = [
-    {
-      categoryId: "section",
-      label: `채용 사이트`,
-      modalTitle: "채용 사이트",
-      options: [
-        { id: "saramin", text: "사람인" },
-        { id: "jobkorea", text: "잡코리아" },
-      ],
-    },
-    {
-      categoryId: "job",
-      label: `개발`,
-      modalTitle: "개발",
-      options: [
-        { id: "frontend", text: "프론트엔드" },
-        { id: "backend", text: "백엔드" },
-      ],
-    },
-    {
-      categoryId: "career",
-      label: `경력`,
-      modalTitle: "경력",
-      options: [
-        { id: "junior", text: "신입" },
-        { id: "senior", text: "1년 이상" },
-      ],
-    },
-  ];
-
-  const modalState = useCreateModal(selectorData);
+  const modalStateController = useCreateModalState(selectors);
+  const valueStateController = useCreateValueState(selectors);
 
   return (
-    <div css={Container}>
-      {selectorData.map((data, index) => (
-        <SelectorDataContext.Provider value={data} key={data.categoryId}>
-          <SelectorModalContext.Provider value={modalState}>
-            <Selector />
-          </SelectorModalContext.Provider>
-        </SelectorDataContext.Provider>
-      ))}
-    </div>
+    <SelectorModalContext.Provider value={modalStateController}>
+      <SelectorValueContext.Provider value={valueStateController}>
+        <div css={Container}>
+          {selectors.map((selector, index) => (
+            <SelectorDataContext.Provider value={selector} key={index}>
+              <Selector />
+            </SelectorDataContext.Provider>
+          ))}
+        </div>
+      </SelectorValueContext.Provider>
+    </SelectorModalContext.Provider>
   );
 }
 
 function Selector() {
   const { Container, Label } = SelectorStyles;
-  const { categoryId, label } = useSelectorData();
+  const { id, title } = useSelectorData();
   const { modal, openModal } = useModal();
-  const query = useQuery();
-  const category = query[categoryId];
-
-  const isModal = modal[categoryId];
+  const { value } = useValue();
+  const isModal = modal[id];
 
   const onClick = () => {
-    openModal(categoryId);
+    openModal(id);
   };
 
   return (
     <div css={Container}>
       <div onClick={onClick} css={Label}>
-        {label + " | " + category}
+        {title + " | " + value[id]}
       </div>
       {isModal && <Modal />}
     </div>
@@ -91,10 +63,10 @@ function Selector() {
 
 function Modal() {
   const { Container } = ModalStyles;
-  const { modalTitle } = useSelectorData();
+  const { title } = useSelectorData();
   return (
     <div css={Container}>
-      <div>{modalTitle}</div>
+      <div>{title}</div>
       <ModalForm />
     </div>
   );
@@ -102,13 +74,13 @@ function Modal() {
 
 function ModalForm() {
   const { Button } = ModalFormStyles;
-  const { asPath, push, replace } = useRouter();
-
-  const { options, categoryId } = useSelectorData();
+  const { push } = useRouter();
+  const { value, setValue } = useValue();
+  const { options, id } = useSelectorData();
   const { closeAllModal } = useModal();
-  const query = useQuery();
-  const categoryValue = query[categoryId];
-  const { option, setOption, initialState } = useCreateOptions(
+  const categoryValue = value[id];
+
+  const { option, setOption, initialState } = useCreateOptionsState(
     options,
     categoryValue
   );
@@ -118,46 +90,35 @@ function ModalForm() {
     const trueValueIndex = Object.values(option).findIndex(
       (value) => value === true
     );
-    const keyValueTrue = Object.keys(option)[trueValueIndex];
-    const cleanedPath = asPath.split(/[?]/);
-    const queryString = cleanedPath[1];
+    const trueValueKey = Object.keys(option)[trueValueIndex];
 
-    console.log(asPath);
+    setValue((prev) => {
+      let params = "";
+      let queryString: string[] = [];
+      const resultValue = { ...prev, [id]: trueValueKey };
+      Object.entries(resultValue).forEach(([key, value]) => {
+        if (key === "section") {
+          params = value;
+        } else {
+          queryString.push(`${key}=${value}`);
+        }
+      });
 
-    if (categoryId === "section") {
-      if (!queryString) {
-        window.location.assign(`/${keyValueTrue}`);
-      } else {
-        window.location.assign(`/${keyValueTrue}?${queryString}`);
-      }
-    } else if (!queryString) {
-      push(`?${categoryId}=${keyValueTrue}`);
-    } else {
-      const queryStringArray = queryString.split("&");
-      const currentCategoryIndex = queryStringArray.findIndex((string) =>
-        string.includes(categoryId)
-      );
-      queryStringArray.splice(
-        currentCategoryIndex,
-        1,
-        `${categoryId}=${keyValueTrue}`
-      );
-      push(`/${query.section}?${queryStringArray.join("&")}`);
-    }
-    closeAllModal();
+      push(`/${params}?${queryString.join("&")}&page=1`);
+      closeAllModal();
+      return resultValue;
+    });
   };
-
-  //
 
   return (
     <form onSubmit={handleSubmit}>
-      {options.map(({ id, text }) => {
+      {options.map(({ value, text }, index) => {
         return (
           <CheckBox
-            key={id}
-            id={id}
-            onChange={() => setOption({ ...initialState, [id]: true })}
-            checked={option[id]}
+            key={index}
+            id={index + ""}
+            onChange={() => setOption({ ...initialState, [value]: true })}
+            checked={option[value]}
             text={text}
           />
         );

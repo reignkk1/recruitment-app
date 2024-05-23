@@ -1,13 +1,11 @@
 import { Dispatch, SetStateAction, createContext } from "react";
-import { ModalCategoryId } from "./types";
 
 interface SelectorDataContextType {
-  categoryId: ModalCategoryId;
-  label: string;
-  modalTitle: string;
+  id: string;
+  title: string;
   options: {
-    id: string;
     text: string;
+    value: string;
   }[];
 }
 
@@ -15,7 +13,7 @@ interface SelectorModalContextType {
   modal: {
     [key: string]: boolean;
   };
-  openModal: (category: ModalCategoryId) => void;
+  openModal: (category: string) => void;
   closeAllModal: () => void;
 }
 
@@ -29,7 +27,16 @@ interface SelectorOptionsContextType {
   initialState: { [key: string]: boolean };
 }
 
-
+interface SelectorValueContextType {
+  value: {
+    [key: string]: string;
+  };
+  setValue: Dispatch<
+    SetStateAction<{
+      [key: string]: string;
+    }>
+  >;
+}
 
 export const SelectorDataContext = createContext<SelectorDataContextType>(
   null!
@@ -43,4 +50,6 @@ export const SelectorOptionsContext = createContext<SelectorOptionsContextType>(
   null!
 );
 
-
+export const SelectorValueContext = createContext<SelectorValueContextType>(
+  null!
+);

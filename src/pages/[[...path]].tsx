@@ -41,6 +41,8 @@ export default function Layout({ data: posts }: { data: IPosts }) {
 
 export async function getStaticProps({ params }: GetStaticPropsContext) {
   const section = params?.path || "home";
+  console.log(params);
+
   let props;
 
   if (section === "home") {

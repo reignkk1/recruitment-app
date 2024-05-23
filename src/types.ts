@@ -1,11 +1,15 @@
-export type ModalCategoryId = "section" | "job" | "career";
-
 export interface SelectorData {
-  categoryId: ModalCategoryId;
-  label: string;
-  modalTitle: string;
+  id: string;
+  title: string;
   options: {
-    id: string;
     text: string;
+    value: string;
   }[];
+}
+
+export interface CheckBoxProps {
+  onChange: () => void;
+  text: string;
+  checked: boolean;
+  id: string;
 }

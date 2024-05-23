@@ -27,7 +27,7 @@ function PostListContainer({ posts }: { posts: IPosts }) {
     query: { job = "frontend", career = "junior", page = "1" },
     asPath,
   } = useRouter();
-  const isQueryString = asPath.split(/[\?\#]/)[1];
+  const isDataFetch = asPath.split("?")[1];
 
   const getFetchPosts = async () => {
     const GET_URI = `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section}?job=${job}&career=${career}&page=${page}`;
@@ -40,11 +40,11 @@ function PostListContainer({ posts }: { posts: IPosts }) {
   };
 
   useEffect(() => {
-    if (isQueryString) {
+    if (isDataFetch) {
       setLoading(true);
       getFetchPosts();
     }
-  }, [asPath, getFetchPosts, isQueryString]);
+  }, [asPath]);
 
   if (loading) {
     return <Loading />;

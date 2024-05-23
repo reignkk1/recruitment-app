@@ -3,12 +3,13 @@ import {
   SelectorDataContext,
   SelectorModalContext,
   SelectorOptionsContext,
+  SelectorValueContext,
 } from "./context";
 import { useRouter } from "next/router";
-import { ModalCategoryId, SelectorData } from "./types";
+import { SelectorData } from "./types";
 
 interface OptionsType {
-  id: string;
+  value: string;
   text: string;
 }
 
@@ -24,12 +25,16 @@ export function useOption() {
   return useContext(SelectorOptionsContext);
 }
 
-export function useCreateModal(selectorData: SelectorData[]) {
+export function useValue() {
+  return useContext(SelectorValueContext);
+}
+
+export function useCreateModalState(selectorData: SelectorData[]) {
   const initialState: { [key: string]: boolean } = {};
-  selectorData.forEach(({ categoryId }) => (initialState[categoryId] = false));
+  selectorData.forEach(({ id }) => (initialState[id] = false));
   const [modal, setModal] = useState(initialState);
 
-  const openModal = (category: ModalCategoryId) => {
+  const openModal = (category: string) => {
     setModal((prev) => {
       return prev[category]
         ? initialState
@@ -44,13 +49,29 @@ export function useCreateModal(selectorData: SelectorData[]) {
   return { modal, openModal, closeAllModal };
 }
 
-export function useCreateOptions(options: OptionsType[], category: string) {
+export function useCreateOptionsState(
+  options: OptionsType[],
+  categoryValue: string
+) {
   const initialState: { [key: string]: boolean } = {};
-  options.forEach(({ id }) => (initialState[id] = false));
+  options.forEach(({ value }) => (initialState[value] = false));
 
-  const [option, setOption] = useState({ ...initialState, [category]: true });
+  const [option, setOption] = useState({
+    ...initialState,
+    [categoryValue]: true,
+  });
 
   return { option, setOption, initialState };
+}
+
+export function useCreateValueState(selectorData: SelectorData[]) {
+  const initialState: { [key: string]: string } = {};
+  const query = useQuery();
+  selectorData.forEach(({ id }) => (initialState[id] = query[id]));
+
+  const [value, setValue] = useState(initialState);
+
+  return { value, setValue };
 }
 
 export function useQuery(): { [key: string]: string } {
