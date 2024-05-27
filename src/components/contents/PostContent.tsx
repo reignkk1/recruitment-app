@@ -3,39 +3,44 @@ import PostList from "../PostList";
 import Search from "../Search";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { IData, IResult } from "@/pages/[[...path]]";
+import { IPosts, IResult } from "@/pages/[[...path]]";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Pagination from "../Pagination";
-import useActiveSection from "@/hooks/useActiveSection";
+import { useQuery } from "@/hooks";
 
-interface PostContentProps {
-  data: IData;
+export default function PostContent({ posts }: { posts: IPosts }) {
+  return (
+    <>
+      <Search />
+      <PostListContainer posts={posts} />
+    </>
+  );
 }
 
-export default function PostContent({ data }: PostContentProps) {
-  const [posts, setPosts] = useState<IResult[]>(data.result);
-  const [total, setTotal] = useState(data.total);
+function PostListContainer({ posts }: { posts: IPosts }) {
+  const [total, setTotal] = useState(posts?.total);
+  const [curPosts, setCurPosts] = useState<IResult[]>(posts?.result);
   const [loading, setLoading] = useState(false);
-  const section = useActiveSection();
+  const { section } = useQuery();
   const {
     query: { job = "frontend", career = "junior", page = "1" },
     asPath,
   } = useRouter();
-  const isQueryString = asPath.split(/[\?\#]/)[1];
+  const isDataFetch = asPath.split("?")[1];
 
   const getFetchPosts = async () => {
     const GET_URI = `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section}?job=${job}&career=${career}&page=${page}`;
     const {
       data: { result, total },
     } = await axios.get(GET_URI);
-    setPosts(result);
+    setCurPosts(result);
     setTotal(total);
     setLoading(false);
   };
 
   useEffect(() => {
-    if (isQueryString) {
+    if (isDataFetch) {
       setLoading(true);
       getFetchPosts();
     }
@@ -44,28 +49,26 @@ export default function PostContent({ data }: PostContentProps) {
   if (loading) {
     return <Loading />;
   }
-
   return (
     <div css={Container}>
-      <Search />
-      <PostList posts={posts} />
+      <PostList posts={curPosts} />
       <Pagination total={total} />
+    </div>
+  );
+}
+
+function Loading() {
+  return (
+    <div css={[Container, LoadingContainer]}>
+      <Image alt="loading" width={600} height={250} src="/loading.gif" />
     </div>
   );
 }
 
 const Container = css`
   width: 1200px;
-  margin: 0 auto;
+  margin: 120px auto;
 `;
-
-function Loading() {
-  return (
-    <div css={LoadingContainer}>
-      <Image alt="loading" width={600} height={250} src="/loading.gif" />
-    </div>
-  );
-}
 
 const LoadingContainer = css`
   text-align: center;

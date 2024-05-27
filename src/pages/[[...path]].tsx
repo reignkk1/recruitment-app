@@ -1,7 +1,6 @@
 import HomeContent from "@/components/contents/HomeContent";
 import PostContent from "@/components/contents/PostContent";
-import Page from "@/components/layout/Page";
-import useActiveSection from "@/hooks/useActiveSection";
+import { useQuery } from "@/hooks";
 import axios from "axios";
 import { GetStaticPropsContext } from "next";
 
@@ -17,13 +16,14 @@ export interface IResult {
   deadLines: string;
 }
 
-export interface IData {
+export interface IPosts {
   result: IResult[];
   total: number;
 }
 
-export default function Layout({ data }: { data: IData }) {
-  const section = useActiveSection();
+export default function Layout({ data: posts }: { data: IPosts }) {
+  const { section } = useQuery();
+
   let content;
 
   switch (section) {
@@ -32,11 +32,7 @@ export default function Layout({ data }: { data: IData }) {
       break;
     case "jobkorea":
     case "saramin":
-      content = (
-        <Page>
-          <PostContent data={data} />
-        </Page>
-      );
+      content = <PostContent posts={posts} />;
       break;
   }
 
@@ -45,6 +41,7 @@ export default function Layout({ data }: { data: IData }) {
 
 export async function getStaticProps({ params }: GetStaticPropsContext) {
   const section = params?.path || "home";
+
   let props;
 
   if (section === "home") {
@@ -59,7 +56,6 @@ export async function getStaticProps({ params }: GetStaticPropsContext) {
 }
 
 export async function getStaticPaths() {
-  // 정적 생성 페이지 paths
   const staticPaths = ["/", "/saramin", "/jobkorea"];
 
   const getSegment = (staticPath: string) => {
