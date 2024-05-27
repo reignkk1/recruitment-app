@@ -13,7 +13,7 @@ interface OptionsType {
   text: string;
 }
 
-export function useSelectorData() {
+export function useGetSelectorData() {
   return useContext(SelectorDataContext);
 }
 

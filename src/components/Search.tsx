@@ -8,29 +8,31 @@ import {
   useCreateOptionsState,
   useCreateValueState,
   useModal,
-  useSelectorData,
+  useGetSelectorData,
   useValue,
 } from "@/hooks";
 import { CheckBoxProps } from "@/types";
 import { css } from "@emotion/react";
 import { useRouter } from "next/router";
 import { FormEvent } from "react";
-
 import selectorsData from "../selectorsData.json";
 
 export default function Search() {
   const { Container } = SearchStyles;
-  const { data: selectors } = selectorsData;
+  const { data } = selectorsData;
 
-  const modalStateController = useCreateModalState(selectors);
-  const valueStateController = useCreateValueState(selectors);
+  // 데이터를 기반으로 Modal 상태와 Value 값 상태를 만든다.
+  const modalStateController = useCreateModalState(data);
+  const valueStateController = useCreateValueState(data);
 
   return (
+    // 하위 컴포넌트들이 데이터에 쉽게 접근할 수 있게 Context를 만든다.
     <SelectorModalContext.Provider value={modalStateController}>
       <SelectorValueContext.Provider value={valueStateController}>
         <div css={Container}>
-          {selectors.map((selector, index) => (
-            <SelectorDataContext.Provider value={selector} key={index}>
+          {data.map((selectorData, index) => (
+            // 각각의 데이터를 가져와서 Selector를 UI에 그린다.
+            <SelectorDataContext.Provider value={selectorData} key={index}>
               <Selector />
             </SelectorDataContext.Provider>
           ))}
@@ -42,18 +44,14 @@ export default function Search() {
 
 function Selector() {
   const { Container, Label } = SelectorStyles;
-  const { id, title } = useSelectorData();
+  const { id, title } = useGetSelectorData();
   const { modal, openModal } = useModal();
   const { value } = useValue();
   const isModal = modal[id];
 
-  const onClick = () => {
-    openModal(id);
-  };
-
   return (
     <div css={Container}>
-      <div onClick={onClick} css={Label}>
+      <div onClick={() => openModal(id)} css={Label}>
         {title + " | " + value[id]}
       </div>
       {isModal && <Modal />}
@@ -63,7 +61,7 @@ function Selector() {
 
 function Modal() {
   const { Container } = ModalStyles;
-  const { title } = useSelectorData();
+  const { title } = useGetSelectorData();
   return (
     <div css={Container}>
       <div>{title}</div>
@@ -76,10 +74,11 @@ function ModalForm() {
   const { Button } = ModalFormStyles;
   const { push } = useRouter();
   const { value, setValue } = useValue();
-  const { options, id } = useSelectorData();
+  const { options, id } = useGetSelectorData();
   const { closeAllModal } = useModal();
   const categoryValue = value[id];
 
+  // 모달에 Check Box Options들의 상태를 만들어준다.
   const { option, setOption, initialState } = useCreateOptionsState(
     options,
     categoryValue
