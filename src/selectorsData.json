@@ -4,24 +4,24 @@
       "id": "section",
       "title": "채용 사이트",
       "options": [
-        { "text": "사람인", "value": "saramin" },
-        { "text": "잡코리아", "value": "jobkorea" }
+        { "text": "사람인", "value": "saramin", "default": true },
+        { "text": "잡코리아", "value": "jobkorea", "default": false }
       ]
     },
     {
       "id": "job",
       "title": "개발",
       "options": [
-        { "text": "프론트엔드", "value": "frontend" },
-        { "text": "백엔드", "value": "backend" }
+        { "text": "프론트엔드", "value": "frontend", "default": true },
+        { "text": "백엔드", "value": "backend", "default": false }
       ]
     },
     {
       "id": "career",
       "title": "경력",
       "options": [
-        { "text": "신입", "value": "junior" },
-        { "text": "1년 이상", "value": "senior" }
+        { "text": "신입", "value": "junior", "default": true },
+        { "text": "1년 이상", "value": "senior", "default": false }
       ]
     }
   ]

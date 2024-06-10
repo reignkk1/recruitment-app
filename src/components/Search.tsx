@@ -16,6 +16,7 @@ import { css } from "@emotion/react";
 import { useRouter } from "next/router";
 import { FormEvent } from "react";
 import selectorsData from "../selectorsData.json";
+import { getKeyRelevantValue } from "@/utils";
 
 export default function Search() {
   const { Container } = SearchStyles;
@@ -23,7 +24,7 @@ export default function Search() {
 
   // 데이터를 기반으로 Modal 상태와 Value 값 상태를 만든다.
   const modalStateController = useCreateModalState(data);
-  const valueStateController = useCreateValueState(data);
+  const valueStateController = useCreateValueState();
 
   return (
     // 하위 컴포넌트들이 데이터에 쉽게 접근할 수 있게 Context를 만든다.
@@ -73,28 +74,21 @@ function Modal() {
 function ModalForm() {
   const { Button } = ModalFormStyles;
   const { push } = useRouter();
-  const { value, setValue } = useValue();
+  const { setValue } = useValue();
   const { options, id } = useGetSelectorData();
   const { closeAllModal } = useModal();
-  const categoryValue = value[id];
 
   // 모달에 Check Box Options들의 상태를 만들어준다.
-  const { option, setOption, initialState } = useCreateOptionsState(
-    options,
-    categoryValue
-  );
+  const { optionState, onClickCheckBox } = useCreateOptionsState(options, id);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const trueValueIndex = Object.values(option).findIndex(
-      (value) => value === true
-    );
-    const trueValueKey = Object.keys(option)[trueValueIndex];
+    const key = getKeyRelevantValue(optionState, true);
 
     setValue((prev) => {
       let params = "";
       let queryString: string[] = [];
-      const resultValue = { ...prev, [id]: trueValueKey };
+      const resultValue = { ...prev, [id]: key };
       Object.entries(resultValue).forEach(([key, value]) => {
         if (key === "section") {
           params = value;
@@ -116,8 +110,8 @@ function ModalForm() {
           <CheckBox
             key={index}
             id={index + ""}
-            onChange={() => setOption({ ...initialState, [value]: true })}
-            checked={option[value]}
+            onChange={() => onClickCheckBox(value)}
+            checked={optionState[value]}
             text={text}
           />
         );

@@ -2,10 +2,10 @@ import { useQuery } from "@/hooks";
 import Head from "next/head";
 
 export default function Seo() {
-  const { site } = useQuery();
+  const { section } = useQuery();
   let title;
 
-  switch (site) {
+  switch (section) {
     case "home":
       title = "흠";
       break;
