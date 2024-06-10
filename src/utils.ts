@@ -41,3 +41,13 @@ export const convertCareerString = (career: string | string[]) => {
     return "알수없음";
   }
 };
+
+export function getKeyRelevantValue(
+  object: object,
+  value: string | boolean | number
+) {
+  const valueIndex = Object.values(object).findIndex((v) => v === value);
+  const key = Object.keys(object)[valueIndex];
+
+  return key;
+}

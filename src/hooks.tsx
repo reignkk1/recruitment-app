@@ -7,11 +7,7 @@ import {
 } from "./context";
 import { useRouter } from "next/router";
 import { SelectorData } from "./types";
-
-interface OptionsType {
-  value: string;
-  text: string;
-}
+import selectorsData from "./selectorsData.json";
 
 export function useGetSelectorData() {
   return useContext(SelectorDataContext);
@@ -29,6 +25,7 @@ export function useValue() {
   return useContext(SelectorValueContext);
 }
 
+// 모달 상태 생성로직
 export function useCreateModalState(selectorData: SelectorData[]) {
   const initialState: { [key: string]: boolean } = {};
   selectorData.forEach(({ id }) => (initialState[id] = false));
@@ -42,60 +39,68 @@ export function useCreateModalState(selectorData: SelectorData[]) {
     });
   };
 
-  const closeAllModal = () => {
-    setModal(initialState);
-  };
-
+  const closeAllModal = () => setModal(initialState);
   return { modal, openModal, closeAllModal };
 }
 
+// 옵션 체크박스 상태 생성로직
 export function useCreateOptionsState(
-  options: OptionsType[],
-  categoryValue: string
+  options: SelectorData["options"],
+  id: string
 ) {
+  const query = useQuery();
   const initialState: { [key: string]: boolean } = {};
   options.forEach(({ value }) => (initialState[value] = false));
 
-  const [option, setOption] = useState({
+  const [optionState, setOption] = useState({
     ...initialState,
-    [categoryValue]: true,
+    [query[id]]: true,
   });
 
-  return { option, setOption, initialState };
+  const onClickCheckBox = (value: string) =>
+    setOption({ ...initialState, [value]: true });
+
+  return { optionState, setOption, onClickCheckBox };
 }
 
-export function useCreateValueState(selectorData: SelectorData[]) {
-  const initialState: { [key: string]: string } = {};
+// 모달 Value 값 상태 로직
+export function useCreateValueState() {
   const query = useQuery();
-  selectorData.forEach(({ id }) => (initialState[id] = query[id]));
-
-  const [value, setValue] = useState(initialState);
+  const [value, setValue] = useState(query);
 
   return { value, setValue };
 }
 
+// 쿼리값 로직
 export function useQuery(): { [key: string]: string } {
-  const { query, asPath } = useRouter();
-  let section;
-  let job = query.job || "frontend";
-  let career = query.career || "junior";
+  const { asPath } = useRouter();
+  const queryString = asPath?.split("?")[1];
+  let objectQuery: { [key: string]: string } = {};
+
+  if (queryString) {
+    objectQuery = Object.fromEntries(
+      queryString.split("&").map((query) => query.split("="))
+    );
+  }
+  selectorsData.data.forEach((selectorData) => {
+    if (selectorData.id !== "section") {
+      selectorData.options.forEach((option) => {
+        if (option.default && !objectQuery[selectorData.id]) {
+          objectQuery[selectorData.id] = option.value;
+        }
+      });
+    }
+  });
 
   if (asPath === "/") {
-    section = "home";
+    objectQuery["section"] = "home";
   } else if (asPath.startsWith("/saramin")) {
-    section = "saramin";
+    objectQuery["section"] = "saramin";
   } else if (asPath.startsWith("/jobkorea")) {
-    section = "jobkorea";
+    objectQuery["section"] = "jobkorea";
   } else {
-    section = "";
+    objectQuery["section"] = "";
   }
 
-  if (Array.isArray(job)) {
-    job = job.join("");
-  }
-  if (Array.isArray(career)) {
-    career = career.join("");
-  }
-
-  return { section, job, career };
+  return objectQuery;
 }

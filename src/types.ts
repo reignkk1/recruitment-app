@@ -4,6 +4,7 @@ export interface SelectorData {
   options: {
     text: string;
     value: string;
+    default: boolean;
   }[];
 }
 

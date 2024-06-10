@@ -1,13 +1,7 @@
 import { Dispatch, SetStateAction, createContext } from "react";
+import { SelectorData } from "./types";
 
-interface SelectorDataContextType {
-  id: string;
-  title: string;
-  options: {
-    text: string;
-    value: string;
-  }[];
-}
+interface SelectorDataContextType extends SelectorData {}
 
 interface SelectorModalContextType {
   modal: {
