@@ -8,6 +8,7 @@ import {
 import { useRouter } from "next/router";
 import { SelectorData } from "./types";
 import selectorsData from "./selectorsData.json";
+import { ParsedUrlQuery } from "querystring";
 
 export function useGetSelectorData() {
   return useContext(SelectorDataContext);
@@ -72,35 +73,26 @@ export function useCreateValueState() {
 }
 
 // 쿼리값 로직
-export function useQuery(): { [key: string]: string } {
-  const { asPath } = useRouter();
-  const queryString = asPath?.split("?")[1];
-  let objectQuery: { [key: string]: string } = {};
+export function useQuery() {
+  const { asPath, query } = useRouter();
+  const pathString = asPath.split("?")[0];
+  const isHome = asPath === "/";
 
-  if (queryString) {
-    objectQuery = Object.fromEntries(
-      queryString.split("&").map((query) => query.split("="))
-    );
-  }
-  selectorsData.data.forEach((selectorData) => {
-    if (selectorData.id !== "section") {
-      selectorData.options.forEach((option) => {
-        if (option.default && !objectQuery[selectorData.id]) {
-          objectQuery[selectorData.id] = option.value;
-        }
-      });
-    }
-  });
+  query["path"] = pathString;
 
-  if (asPath === "/") {
-    objectQuery["section"] = "home";
-  } else if (asPath.startsWith("/saramin")) {
-    objectQuery["section"] = "saramin";
-  } else if (asPath.startsWith("/jobkorea")) {
-    objectQuery["section"] = "jobkorea";
-  } else {
-    objectQuery["section"] = "";
+  if (!isHome) {
+    selectorsData.data.forEach(({ route, options, id }) => {
+      if (route !== "path") {
+        options.forEach((option) => {
+          if (option.default && !query[id]) {
+            query[id] = option.value;
+          }
+        });
+      }
+    });
   }
 
-  return objectQuery;
+  console.log(query);
+
+  return query as { [key: string]: string };
 }

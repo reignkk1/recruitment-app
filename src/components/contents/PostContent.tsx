@@ -22,7 +22,7 @@ function PostListContainer({ posts }: { posts: IPosts }) {
   const [total, setTotal] = useState(posts?.total);
   const [curPosts, setCurPosts] = useState<IResult[]>(posts?.result);
   const [loading, setLoading] = useState(false);
-  const { section } = useQuery();
+  const query = useQuery();
   const {
     query: { job = "frontend", career = "junior", page = "1" },
     asPath,
@@ -30,7 +30,7 @@ function PostListContainer({ posts }: { posts: IPosts }) {
   const isDataFetch = asPath.split("?")[1];
 
   const getFetchPosts = async () => {
-    const GET_URI = `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${section}?job=${job}&career=${career}&page=${page}`;
+    const GET_URI = `${process.env.NEXT_PUBLIC_HOST}/api/crawling${query.path}?job=${job}&career=${career}&page=${page}`;
     const {
       data: { result, total },
     } = await axios.get(GET_URI);

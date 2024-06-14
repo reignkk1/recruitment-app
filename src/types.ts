@@ -1,6 +1,7 @@
 export interface SelectorData {
   id: string;
   title: string;
+  route: string;
   options: {
     text: string;
     value: string;

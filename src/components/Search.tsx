@@ -10,6 +10,7 @@ import {
   useModal,
   useGetSelectorData,
   useValue,
+  useQuery,
 } from "@/hooks";
 import { CheckBoxProps } from "@/types";
 import { css } from "@emotion/react";
@@ -43,17 +44,20 @@ export default function Search() {
   );
 }
 
+// 배경화면, 페이지 컴포넌트 리팩토링!, section => default 값 필요한가?
+// 데이터 json에 path, query 값 넣어서 구분해보자
+
 function Selector() {
   const { Container, Label } = SelectorStyles;
   const { id, title } = useGetSelectorData();
   const { modal, openModal } = useModal();
-  const { value } = useValue();
+  const query = useQuery();
   const isModal = modal[id];
 
   return (
     <div css={Container}>
       <div onClick={() => openModal(id)} css={Label}>
-        {title + " | " + value[id]}
+        {title + " | " + query[id]}
       </div>
       {isModal && <Modal />}
     </div>
@@ -73,9 +77,11 @@ function Modal() {
 
 function ModalForm() {
   const { Button } = ModalFormStyles;
-  const { push } = useRouter();
-  const { setValue } = useValue();
-  const { options, id } = useGetSelectorData();
+  const { push, asPath } = useRouter();
+  const query = useQuery();
+  console.log(query);
+
+  const { options, id, route } = useGetSelectorData();
   const { closeAllModal } = useModal();
 
   // 모달에 Check Box Options들의 상태를 만들어준다.
@@ -83,24 +89,24 @@ function ModalForm() {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const key = getKeyRelevantValue(optionState, true);
 
-    setValue((prev) => {
-      let params = "";
-      let queryString: string[] = [];
-      const resultValue = { ...prev, [id]: key };
-      Object.entries(resultValue).forEach(([key, value]) => {
-        if (key === "section") {
-          params = value;
-        } else {
-          queryString.push(`${key}=${value}`);
-        }
-      });
+    // optionState라는 객체에서 값이 true인 key값을 리턴한다.
+    // 사용자가 체크한 값을 가져온다 ex) saramin, jobkorea
+    const chekedValue = getKeyRelevantValue(optionState, true);
 
-      push(`/${params}?${queryString.join("&")}&page=1`);
-      closeAllModal();
-      return resultValue;
-    });
+    //사용자가 체크한 값을 가져와서
+    // 해당 모달의 라우트가 path이면 현재 URI를 가져와서 path부분을 추가해서 push한다.
+    // 모달의 라우트가 query이면 현재URI를 가져와서 query부분을 추가한 후 push 한다.
+
+    if (route === "path") {
+      const { path, ...rest } = query;
+      console.log(path, rest);
+      // path.push(chekedValue);
+      // push({ pathname: path.join('/') ,query:{...rest}});
+    } else {
+      console.log(query);
+      push({ query: {} });
+    }
   };
 
   return (
