@@ -1,20 +1,15 @@
-import {
-  SelectorDataContext,
-  SelectorModalContext,
-  SelectorValueContext,
-} from "@/context";
+import { SelectorDataContext, SelectorModalContext } from "@/context";
 import {
   useCreateModalState,
   useCreateOptionsState,
-  useCreateValueState,
   useModal,
   useGetSelectorData,
-  useValue,
+  useQuery,
 } from "@/hooks";
 import { CheckBoxProps } from "@/types";
 import { css } from "@emotion/react";
 import { useRouter } from "next/router";
-import { FormEvent } from "react";
+import { FormEvent, useEffect, useRef } from "react";
 import selectorsData from "../selectorsData.json";
 import { getKeyRelevantValue } from "@/utils";
 
@@ -24,36 +19,35 @@ export default function Search() {
 
   // 데이터를 기반으로 Modal 상태와 Value 값 상태를 만든다.
   const modalStateController = useCreateModalState(data);
-  const valueStateController = useCreateValueState();
 
   return (
     // 하위 컴포넌트들이 데이터에 쉽게 접근할 수 있게 Context를 만든다.
     <SelectorModalContext.Provider value={modalStateController}>
-      <SelectorValueContext.Provider value={valueStateController}>
-        <div css={Container}>
-          {data.map((selectorData, index) => (
-            // 각각의 데이터를 가져와서 Selector를 UI에 그린다.
-            <SelectorDataContext.Provider value={selectorData} key={index}>
-              <Selector />
-            </SelectorDataContext.Provider>
-          ))}
-        </div>
-      </SelectorValueContext.Provider>
+      <div css={Container}>
+        {data.map((selectorData, index) => (
+          // 각각의 데이터를 가져와서 Selector를 UI에 그린다.
+          <SelectorDataContext.Provider value={selectorData} key={index}>
+            <Selector />
+          </SelectorDataContext.Provider>
+        ))}
+      </div>
     </SelectorModalContext.Provider>
   );
 }
+
+// 배경화면, 페이지 컴포넌트 리팩토링!
 
 function Selector() {
   const { Container, Label } = SelectorStyles;
   const { id, title } = useGetSelectorData();
   const { modal, openModal } = useModal();
-  const { value } = useValue();
+  const query = useQuery();
   const isModal = modal[id];
 
   return (
     <div css={Container}>
       <div onClick={() => openModal(id)} css={Label}>
-        {title + " | " + value[id]}
+        {title + " | " + query[id]}
       </div>
       {isModal && <Modal />}
     </div>
@@ -63,6 +57,7 @@ function Selector() {
 function Modal() {
   const { Container } = ModalStyles;
   const { title } = useGetSelectorData();
+
   return (
     <div css={Container}>
       <div>{title}</div>
@@ -74,8 +69,9 @@ function Modal() {
 function ModalForm() {
   const { Button } = ModalFormStyles;
   const { push } = useRouter();
-  const { setValue } = useValue();
-  const { options, id } = useGetSelectorData();
+  const query = useQuery();
+
+  const { options, id, route } = useGetSelectorData();
   const { closeAllModal } = useModal();
 
   // 모달에 Check Box Options들의 상태를 만들어준다.
@@ -83,24 +79,22 @@ function ModalForm() {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const key = getKeyRelevantValue(optionState, true);
+    closeAllModal();
 
-    setValue((prev) => {
-      let params = "";
-      let queryString: string[] = [];
-      const resultValue = { ...prev, [id]: key };
-      Object.entries(resultValue).forEach(([key, value]) => {
-        if (key === "section") {
-          params = value;
-        } else {
-          queryString.push(`${key}=${value}`);
-        }
-      });
+    // optionState라는 객체에서 값이 true인 key값을 리턴한다.
+    // 사용자가 체크한 값을 가져온다 ex) saramin, jobkorea
+    const chekedValue = getKeyRelevantValue(optionState, true);
 
-      push(`/${params}?${queryString.join("&")}&page=1`);
-      closeAllModal();
-      return resultValue;
-    });
+    // 사용자가 체크한 값을 가져와서
+    // 해당 모달의 라우트가 path이면 현재 URI를 가져와서 path부분을 추가해서 push한다.
+    // 모달의 라우트가 query이면 현재URI를 가져와서 query부분을 추가한 후 push 한다.
+
+    const { section, ...rest } = query;
+    if (route === "path") {
+      push({ pathname: chekedValue, query: { ...rest } });
+    } else {
+      push({ pathname: section, query: { ...rest, [id]: chekedValue } });
+    }
   };
 
   return (

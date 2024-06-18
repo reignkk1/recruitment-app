@@ -3,7 +3,6 @@ import {
   SelectorDataContext,
   SelectorModalContext,
   SelectorOptionsContext,
-  SelectorValueContext,
 } from "./context";
 import { useRouter } from "next/router";
 import { SelectorData } from "./types";
@@ -19,10 +18,6 @@ export function useModal() {
 
 export function useOption() {
   return useContext(SelectorOptionsContext);
-}
-
-export function useValue() {
-  return useContext(SelectorValueContext);
 }
 
 // 모달 상태 생성로직
@@ -63,44 +58,42 @@ export function useCreateOptionsState(
   return { optionState, setOption, onClickCheckBox };
 }
 
-// 모달 Value 값 상태 로직
-export function useCreateValueState() {
-  const query = useQuery();
-  const [value, setValue] = useState(query);
+// 쿼리값 로직
+export function useQuery() {
+  const { asPath, query } = useRouter();
+  const isHome = asPath === "/";
+  const section = getActiveSection(asPath);
 
-  return { value, setValue };
+  delete query.path;
+
+  const queryObject: { [key: string]: string } = { section, ...query };
+
+  if (!isHome) {
+    selectorsData.data.forEach(({ route, options, id }) => {
+      if (route !== "path") {
+        options.forEach((option) => {
+          if (option.default && !queryObject[id]) {
+            queryObject[id] = option.value;
+          }
+        });
+      }
+    });
+    if (!Object.hasOwn(queryObject, "page")) {
+      queryObject["page"] = "1";
+    }
+  }
+
+  return queryObject;
 }
 
-// 쿼리값 로직
-export function useQuery(): { [key: string]: string } {
-  const { asPath } = useRouter();
-  const queryString = asPath?.split("?")[1];
-  let objectQuery: { [key: string]: string } = {};
-
-  if (queryString) {
-    objectQuery = Object.fromEntries(
-      queryString.split("&").map((query) => query.split("="))
-    );
-  }
-  selectorsData.data.forEach((selectorData) => {
-    if (selectorData.id !== "section") {
-      selectorData.options.forEach((option) => {
-        if (option.default && !objectQuery[selectorData.id]) {
-          objectQuery[selectorData.id] = option.value;
-        }
-      });
-    }
-  });
-
-  if (asPath === "/") {
-    objectQuery["section"] = "home";
-  } else if (asPath.startsWith("/saramin")) {
-    objectQuery["section"] = "saramin";
-  } else if (asPath.startsWith("/jobkorea")) {
-    objectQuery["section"] = "jobkorea";
+function getActiveSection(path: string) {
+  if (path === "/") {
+    return "home";
+  } else if (path.startsWith("/saramin")) {
+    return "saramin";
+  } else if (path.startsWith("/jobkorea")) {
+    return "jobkorea";
   } else {
-    objectQuery["section"] = "";
+    return "unknown";
   }
-
-  return objectQuery;
 }

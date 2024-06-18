@@ -3,6 +3,7 @@ import Head from "next/head";
 
 export default function Seo() {
   const { section } = useQuery();
+
   let title;
 
   switch (section) {
