@@ -3,12 +3,10 @@ import {
   SelectorDataContext,
   SelectorModalContext,
   SelectorOptionsContext,
-  SelectorValueContext,
 } from "./context";
 import { useRouter } from "next/router";
 import { SelectorData } from "./types";
 import selectorsData from "./selectorsData.json";
-import { ParsedUrlQuery } from "querystring";
 
 export function useGetSelectorData() {
   return useContext(SelectorDataContext);
@@ -20,10 +18,6 @@ export function useModal() {
 
 export function useOption() {
   return useContext(SelectorOptionsContext);
-}
-
-export function useValue() {
-  return useContext(SelectorValueContext);
 }
 
 // 모달 상태 생성로직
@@ -64,35 +58,42 @@ export function useCreateOptionsState(
   return { optionState, setOption, onClickCheckBox };
 }
 
-// 모달 Value 값 상태 로직
-export function useCreateValueState() {
-  const query = useQuery();
-  const [value, setValue] = useState(query);
-
-  return { value, setValue };
-}
-
 // 쿼리값 로직
 export function useQuery() {
   const { asPath, query } = useRouter();
-  const pathString = asPath.split("?")[0];
   const isHome = asPath === "/";
+  const section = getActiveSection(asPath);
 
-  query["path"] = pathString;
+  delete query.path;
+
+  const queryObject: { [key: string]: string } = { section, ...query };
 
   if (!isHome) {
     selectorsData.data.forEach(({ route, options, id }) => {
       if (route !== "path") {
         options.forEach((option) => {
-          if (option.default && !query[id]) {
-            query[id] = option.value;
+          if (option.default && !queryObject[id]) {
+            queryObject[id] = option.value;
           }
         });
       }
     });
+    if (!Object.hasOwn(queryObject, "page")) {
+      queryObject["page"] = "1";
+    }
   }
 
-  console.log(query);
+  return queryObject;
+}
 
-  return query as { [key: string]: string };
+function getActiveSection(path: string) {
+  if (path === "/") {
+    return "home";
+  } else if (path.startsWith("/saramin")) {
+    return "saramin";
+  } else if (path.startsWith("/jobkorea")) {
+    return "jobkorea";
+  } else {
+    return "unknown";
+  }
 }

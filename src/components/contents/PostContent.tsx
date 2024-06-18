@@ -30,7 +30,7 @@ function PostListContainer({ posts }: { posts: IPosts }) {
   const isDataFetch = asPath.split("?")[1];
 
   const getFetchPosts = async () => {
-    const GET_URI = `${process.env.NEXT_PUBLIC_HOST}/api/crawling${query.path}?job=${job}&career=${career}&page=${page}`;
+    const GET_URI = `${process.env.NEXT_PUBLIC_HOST}/api/crawling/${query.section}?job=${job}&career=${career}&page=${page}`;
     const {
       data: { result, total },
     } = await axios.get(GET_URI);

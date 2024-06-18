@@ -1,10 +1,8 @@
 import HomeContent from "@/components/contents/HomeContent";
 import PostContent from "@/components/contents/PostContent";
 import { useQuery } from "@/hooks";
-
 import axios from "axios";
 import { GetStaticPropsContext } from "next";
-import { useRouter } from "next/router";
 
 export interface IResult {
   id: string;
@@ -24,16 +22,16 @@ export interface IPosts {
 }
 
 export default function Layout({ data: posts }: { data: IPosts }) {
-  const { path } = useQuery();
+  const { section } = useQuery();
 
   let content;
 
-  switch (path) {
-    case "/":
+  switch (section) {
+    case "home":
       content = <HomeContent />;
       break;
-    case "/jobkorea":
-    case "/saramin":
+    case "jobkorea":
+    case "saramin":
       content = <PostContent posts={posts} />;
       break;
   }

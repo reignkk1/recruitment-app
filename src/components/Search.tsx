@@ -1,21 +1,15 @@
-import {
-  SelectorDataContext,
-  SelectorModalContext,
-  SelectorValueContext,
-} from "@/context";
+import { SelectorDataContext, SelectorModalContext } from "@/context";
 import {
   useCreateModalState,
   useCreateOptionsState,
-  useCreateValueState,
   useModal,
   useGetSelectorData,
-  useValue,
   useQuery,
 } from "@/hooks";
 import { CheckBoxProps } from "@/types";
 import { css } from "@emotion/react";
 import { useRouter } from "next/router";
-import { FormEvent } from "react";
+import { FormEvent, useEffect, useRef } from "react";
 import selectorsData from "../selectorsData.json";
 import { getKeyRelevantValue } from "@/utils";
 
@@ -25,27 +19,23 @@ export default function Search() {
 
   // 데이터를 기반으로 Modal 상태와 Value 값 상태를 만든다.
   const modalStateController = useCreateModalState(data);
-  const valueStateController = useCreateValueState();
 
   return (
     // 하위 컴포넌트들이 데이터에 쉽게 접근할 수 있게 Context를 만든다.
     <SelectorModalContext.Provider value={modalStateController}>
-      <SelectorValueContext.Provider value={valueStateController}>
-        <div css={Container}>
-          {data.map((selectorData, index) => (
-            // 각각의 데이터를 가져와서 Selector를 UI에 그린다.
-            <SelectorDataContext.Provider value={selectorData} key={index}>
-              <Selector />
-            </SelectorDataContext.Provider>
-          ))}
-        </div>
-      </SelectorValueContext.Provider>
+      <div css={Container}>
+        {data.map((selectorData, index) => (
+          // 각각의 데이터를 가져와서 Selector를 UI에 그린다.
+          <SelectorDataContext.Provider value={selectorData} key={index}>
+            <Selector />
+          </SelectorDataContext.Provider>
+        ))}
+      </div>
     </SelectorModalContext.Provider>
   );
 }
 
-// 배경화면, 페이지 컴포넌트 리팩토링!, section => default 값 필요한가?
-// 데이터 json에 path, query 값 넣어서 구분해보자
+// 배경화면, 페이지 컴포넌트 리팩토링!
 
 function Selector() {
   const { Container, Label } = SelectorStyles;
@@ -67,6 +57,7 @@ function Selector() {
 function Modal() {
   const { Container } = ModalStyles;
   const { title } = useGetSelectorData();
+
   return (
     <div css={Container}>
       <div>{title}</div>
@@ -77,9 +68,8 @@ function Modal() {
 
 function ModalForm() {
   const { Button } = ModalFormStyles;
-  const { push, asPath } = useRouter();
+  const { push } = useRouter();
   const query = useQuery();
-  console.log(query);
 
   const { options, id, route } = useGetSelectorData();
   const { closeAllModal } = useModal();
@@ -89,23 +79,21 @@ function ModalForm() {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    closeAllModal();
 
     // optionState라는 객체에서 값이 true인 key값을 리턴한다.
     // 사용자가 체크한 값을 가져온다 ex) saramin, jobkorea
     const chekedValue = getKeyRelevantValue(optionState, true);
 
-    //사용자가 체크한 값을 가져와서
+    // 사용자가 체크한 값을 가져와서
     // 해당 모달의 라우트가 path이면 현재 URI를 가져와서 path부분을 추가해서 push한다.
     // 모달의 라우트가 query이면 현재URI를 가져와서 query부분을 추가한 후 push 한다.
 
+    const { section, ...rest } = query;
     if (route === "path") {
-      const { path, ...rest } = query;
-      console.log(path, rest);
-      // path.push(chekedValue);
-      // push({ pathname: path.join('/') ,query:{...rest}});
+      push({ pathname: chekedValue, query: { ...rest } });
     } else {
-      console.log(query);
-      push({ query: {} });
+      push({ pathname: section, query: { ...rest, [id]: chekedValue } });
     }
   };
 

@@ -21,17 +21,6 @@ interface SelectorOptionsContextType {
   initialState: { [key: string]: boolean };
 }
 
-interface SelectorValueContextType {
-  value: {
-    [key: string]: string;
-  };
-  setValue: Dispatch<
-    SetStateAction<{
-      [key: string]: string;
-    }>
-  >;
-}
-
 export const SelectorDataContext = createContext<SelectorDataContextType>(
   null!
 );
@@ -41,9 +30,5 @@ export const SelectorModalContext = createContext<SelectorModalContextType>(
 );
 
 export const SelectorOptionsContext = createContext<SelectorOptionsContextType>(
-  null!
-);
-
-export const SelectorValueContext = createContext<SelectorValueContextType>(
   null!
 );

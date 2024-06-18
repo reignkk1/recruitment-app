@@ -2,18 +2,18 @@ import { useQuery } from "@/hooks";
 import Head from "next/head";
 
 export default function Seo() {
-  const { path } = useQuery();
+  const { section } = useQuery();
 
   let title;
 
-  switch (path) {
-    case "/":
+  switch (section) {
+    case "home":
       title = "흠";
       break;
-    case "/jobkorea":
+    case "jobkorea":
       title = "잡코리아";
       break;
-    case "/saramin":
+    case "saramin":
       title = "사람인";
       break;
     default:
