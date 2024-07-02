@@ -6,7 +6,7 @@ import {
   useGetSelectorData,
   useQuery,
 } from "@/hooks";
-import { CheckBoxProps } from "@/types";
+import { CheckBoxProps, SelectorData } from "@/types";
 import { css } from "@emotion/react";
 import { useRouter } from "next/router";
 import { FormEvent, useEffect, useRef } from "react";
@@ -14,17 +14,18 @@ import selectorsData from "../selectorsData.json";
 import { getKeyRelevantValue } from "@/utils";
 
 export default function Search() {
-  const { Container } = SearchStyles;
   const { data } = selectorsData;
+  const selectors = renderSelectorUI(data);
+  return selectors;
+}
 
-  // 데이터를 기반으로 Modal 상태와 Value 값 상태를 만든다.
-  const modalStateController = useCreateModalState(data);
-
+function renderSelectorUI(selectorsData: SelectorData[]) {
+  const { Container } = SearchStyles;
+  const modalStateController = useCreateModalState(selectorsData);
   return (
-    // 하위 컴포넌트들이 데이터에 쉽게 접근할 수 있게 Context를 만든다.
     <SelectorModalContext.Provider value={modalStateController}>
       <div css={Container}>
-        {data.map((selectorData, index) => (
+        {selectorsData.map((selectorData, index) => (
           // 각각의 데이터를 가져와서 Selector를 UI에 그린다.
           <SelectorDataContext.Provider value={selectorData} key={index}>
             <Selector />
@@ -35,12 +36,14 @@ export default function Search() {
   );
 }
 
-// 배경화면, 페이지 컴포넌트 리팩토링!
+// 모달 바깥 구역 클릭시 모달 닫힘
+// 렌더링 최적화
 
 function Selector() {
   const { Container, Label } = SelectorStyles;
   const { id, title } = useGetSelectorData();
   const { modal, openModal } = useModal();
+  // uri 변경되면 useQuery 재렌더링?
   const query = useQuery();
   const isModal = modal[id];
 
@@ -49,33 +52,56 @@ function Selector() {
       <div onClick={() => openModal(id)} css={Label}>
         {title + " | " + query[id]}
       </div>
-      {isModal && <Modal />}
+      {isModal && <Modal query={query} />}
     </div>
   );
 }
+interface QueryType {
+  query: { [key: string]: string };
+}
 
-function Modal() {
-  const { Container } = ModalStyles;
+function Modal({ query }: QueryType) {
+  const { ModalContainer } = SelectorStyles;
   const { title } = useGetSelectorData();
+  const { closeAllModal } = useModal();
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onClick = (e: any) => {
+      if (
+        !modalRef.current?.contains(e.target) &&
+        !modalRef.current?.parentElement?.childNodes[0].contains(e.target)
+      ) {
+        closeAllModal();
+      }
+    };
+    document.addEventListener("click", onClick);
+
+    return () => {
+      document.removeEventListener("click", onClick);
+    };
+  }, []);
 
   return (
-    <div css={Container}>
+    <div ref={modalRef} css={ModalContainer}>
       <div>{title}</div>
-      <ModalForm />
+      <ModalForm query={query} />
     </div>
   );
 }
 
-function ModalForm() {
+function ModalForm({ query }: QueryType) {
   const { Button } = ModalFormStyles;
   const { push } = useRouter();
-  const query = useQuery();
-
   const { options, id, route } = useGetSelectorData();
   const { closeAllModal } = useModal();
 
   // 모달에 Check Box Options들의 상태를 만들어준다.
-  const { optionState, onClickCheckBox } = useCreateOptionsState(options, id);
+  const { optionState, onClickCheckBox } = useCreateOptionsState(
+    options,
+    id,
+    query
+  );
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -155,17 +181,13 @@ const SelectorStyles = {
     padding: 10px 20px;
     cursor: pointer;
   `,
-};
-
-const ModalStyles = {
-  Container: css`
+  ModalContainer: css`
     position: absolute;
     top: 25px;
     left: 10px;
     margin-top: 15px;
     margin-right: 20px;
     width: 200px;
-    height: 130px;
     border: 1px solid black;
     border-radius: 10px;
     background-color: white;
@@ -173,6 +195,7 @@ const ModalStyles = {
     div {
       margin-bottom: 8px;
     }
+
     form label {
       display: block;
       width: 100%;
