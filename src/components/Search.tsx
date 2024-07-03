@@ -6,7 +6,7 @@ import {
   useGetSelectorData,
   useQuery,
 } from "@/hooks";
-import { CheckBoxProps } from "@/types";
+import { CheckBoxProps, SelectorData } from "@/types";
 import { css } from "@emotion/react";
 import { useRouter } from "next/router";
 import { FormEvent, useEffect, useRef } from "react";
@@ -14,68 +14,97 @@ import selectorsData from "../selectorsData.json";
 import { getKeyRelevantValue } from "@/utils";
 
 export default function Search() {
-  const { Container } = SearchStyles;
   const { data } = selectorsData;
-
-  // 데이터를 기반으로 Modal 상태와 Value 값 상태를 만든다.
-  const modalStateController = useCreateModalState(data);
+  const { Container } = SearchStyles;
 
   return (
-    // 하위 컴포넌트들이 데이터에 쉽게 접근할 수 있게 Context를 만든다.
+    <div css={Container}>
+      <Selectors selectorsData={data} />
+    </div>
+  );
+}
+
+function Selectors({ selectorsData }: { selectorsData: SelectorData[] }) {
+  //데이터를 기반으로 각각의 모달창 상태를 생성한다.
+  const modalStateController = useCreateModalState(selectorsData);
+  return (
+    // ContextAPI로 prop를 줄여 컴포넌트의 의존성 제거 => 복잡도 낮아짐
     <SelectorModalContext.Provider value={modalStateController}>
-      <div css={Container}>
-        {data.map((selectorData, index) => (
-          // 각각의 데이터를 가져와서 Selector를 UI에 그린다.
-          <SelectorDataContext.Provider value={selectorData} key={index}>
-            <Selector />
-          </SelectorDataContext.Provider>
-        ))}
-      </div>
+      {selectorsData.map((selectorData, index) => (
+        // 데이터를 기반으로 각각의 셀렉터들을 렌더링
+        <SelectorDataContext.Provider value={selectorData} key={index}>
+          <Selector />
+        </SelectorDataContext.Provider>
+      ))}
     </SelectorModalContext.Provider>
   );
 }
 
-// 배경화면, 페이지 컴포넌트 리팩토링!
-
 function Selector() {
   const { Container, Label } = SelectorStyles;
-  const { id, title } = useGetSelectorData();
+  const { id, title, options } = useGetSelectorData();
   const { modal, openModal } = useModal();
   const query = useQuery();
   const isModal = modal[id];
+  const valueText = options.find((option) => option.value === query[id])?.text;
 
   return (
     <div css={Container}>
       <div onClick={() => openModal(id)} css={Label}>
-        {title + " | " + query[id]}
+        {title + " | " + valueText}
       </div>
-      {isModal && <Modal />}
+      {isModal && <Modal query={query} />}
     </div>
   );
 }
+interface QueryType {
+  query: { [key: string]: string };
+}
 
-function Modal() {
-  const { Container } = ModalStyles;
+function Modal({ query }: QueryType) {
+  const { ModalContainer } = SelectorStyles;
   const { title } = useGetSelectorData();
+  const { closeAllModal } = useModal();
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // 모달창 바깥 영역 클릭 시 모달창 닫힘
+    const onClick = (e: any) => {
+      if (
+        !modalRef.current?.contains(e.target) &&
+        !modalRef.current?.parentElement?.childNodes[0].contains(e.target)
+      ) {
+        closeAllModal();
+      }
+    };
+    document.addEventListener("click", onClick);
+
+    // 클린업 함수로 모달창 언마운트 되면 클릭 이벤트 제거
+    return () => {
+      document.removeEventListener("click", onClick);
+    };
+  }, []);
 
   return (
-    <div css={Container}>
+    <div ref={modalRef} css={ModalContainer}>
       <div>{title}</div>
-      <ModalForm />
+      <ModalForm query={query} />
     </div>
   );
 }
 
-function ModalForm() {
+function ModalForm({ query }: QueryType) {
   const { Button } = ModalFormStyles;
   const { push } = useRouter();
-  const query = useQuery();
-
   const { options, id, route } = useGetSelectorData();
   const { closeAllModal } = useModal();
 
   // 모달에 Check Box Options들의 상태를 만들어준다.
-  const { optionState, onClickCheckBox } = useCreateOptionsState(options, id);
+  const { optionState, onClickCheckBox } = useCreateOptionsState(
+    options,
+    id,
+    query
+  );
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -155,17 +184,13 @@ const SelectorStyles = {
     padding: 10px 20px;
     cursor: pointer;
   `,
-};
-
-const ModalStyles = {
-  Container: css`
+  ModalContainer: css`
     position: absolute;
     top: 25px;
     left: 10px;
     margin-top: 15px;
     margin-right: 20px;
     width: 200px;
-    height: 130px;
     border: 1px solid black;
     border-radius: 10px;
     background-color: white;
@@ -173,6 +198,7 @@ const ModalStyles = {
     div {
       margin-bottom: 8px;
     }
+
     form label {
       display: block;
       width: 100%;

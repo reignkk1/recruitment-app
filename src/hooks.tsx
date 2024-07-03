@@ -41,9 +41,9 @@ export function useCreateModalState(selectorData: SelectorData[]) {
 // 옵션 체크박스 상태 생성로직
 export function useCreateOptionsState(
   options: SelectorData["options"],
-  id: string
+  id: string,
+  query: { [key: string]: string }
 ) {
-  const query = useQuery();
   const initialState: { [key: string]: boolean } = {};
   options.forEach(({ value }) => (initialState[value] = false));
 
