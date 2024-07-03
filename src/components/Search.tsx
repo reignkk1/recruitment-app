@@ -15,42 +15,43 @@ import { getKeyRelevantValue } from "@/utils";
 
 export default function Search() {
   const { data } = selectorsData;
-  const selectors = renderSelectorUI(data);
-  return selectors;
+  const { Container } = SearchStyles;
+
+  return (
+    <div css={Container}>
+      <Selectors selectorsData={data} />
+    </div>
+  );
 }
 
-function renderSelectorUI(selectorsData: SelectorData[]) {
-  const { Container } = SearchStyles;
+function Selectors({ selectorsData }: { selectorsData: SelectorData[] }) {
+  //데이터를 기반으로 각각의 모달창 상태를 생성한다.
   const modalStateController = useCreateModalState(selectorsData);
   return (
+    // ContextAPI로 prop를 줄여 컴포넌트의 의존성 제거 => 복잡도 낮아짐
     <SelectorModalContext.Provider value={modalStateController}>
-      <div css={Container}>
-        {selectorsData.map((selectorData, index) => (
-          // 각각의 데이터를 가져와서 Selector를 UI에 그린다.
-          <SelectorDataContext.Provider value={selectorData} key={index}>
-            <Selector />
-          </SelectorDataContext.Provider>
-        ))}
-      </div>
+      {selectorsData.map((selectorData, index) => (
+        // 데이터를 기반으로 각각의 셀렉터들을 렌더링
+        <SelectorDataContext.Provider value={selectorData} key={index}>
+          <Selector />
+        </SelectorDataContext.Provider>
+      ))}
     </SelectorModalContext.Provider>
   );
 }
 
-// 모달 바깥 구역 클릭시 모달 닫힘
-// 렌더링 최적화
-
 function Selector() {
   const { Container, Label } = SelectorStyles;
-  const { id, title } = useGetSelectorData();
+  const { id, title, options } = useGetSelectorData();
   const { modal, openModal } = useModal();
-  // uri 변경되면 useQuery 재렌더링?
   const query = useQuery();
   const isModal = modal[id];
+  const valueText = options.find((option) => option.value === query[id])?.text;
 
   return (
     <div css={Container}>
       <div onClick={() => openModal(id)} css={Label}>
-        {title + " | " + query[id]}
+        {title + " | " + valueText}
       </div>
       {isModal && <Modal query={query} />}
     </div>
@@ -67,6 +68,7 @@ function Modal({ query }: QueryType) {
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // 모달창 바깥 영역 클릭 시 모달창 닫힘
     const onClick = (e: any) => {
       if (
         !modalRef.current?.contains(e.target) &&
@@ -77,6 +79,7 @@ function Modal({ query }: QueryType) {
     };
     document.addEventListener("click", onClick);
 
+    // 클린업 함수로 모달창 언마운트 되면 클릭 이벤트 제거
     return () => {
       document.removeEventListener("click", onClick);
     };
