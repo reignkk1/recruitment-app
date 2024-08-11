@@ -33,27 +33,35 @@ export default async function jobkorea(
     const JOB = jobCodeConvert();
 
     const { data: html } = await axios(
-      `${DOMAIN}/Search/?stext=${JOB}&careerType=${CAREER}&tabType=recruit&Page_No=${page}&Ord=RegDtDesc`
+      `${DOMAIN}/Search/?stext=${JOB}&careerType=${CAREER}&tabType=recruit&Page_No=${page}&ord=RegDtDesc`
     );
-
     const $ = cheerio.load(html);
 
     const result = [] as object[];
-    const total = Number(
-      $(".recruit-info .dev_tot").text().split(",").join("")
-    );
+    const total = Number($(".util-total-count").attr("total-count"));
 
-    $(".list-default .list-post").each((_, item) => {
+    $(".list .list-item").each((i, item) => {
       const id = $(item).attr("data-gino");
-      const title = $(item).find(".title").text().trim();
-      const link = DOMAIN + $(item).find(".title").attr("href");
-      const companyName = $(item).find(".name").text().trim();
-      const companyLink = DOMAIN + $(item).find(".name").attr("href");
-      const workPlace = $(item).find(".long").text();
-      const career = $(item).find(".exp").text();
-      const education = $(item).find(".edu").text();
-      const deadLines = $(item).find(".date").text();
-      const etc = $(item).find(".etc").text();
+      const title = $(item).find(".information-title-link").text().trim();
+      console.log(title);
+      const link =
+        DOMAIN + $(item).find(".information-title-link").attr("href");
+      const companyName = $(item).find(".corp-name-link").text().trim();
+      const companyLink = DOMAIN + $(item).find(".corp-name-link").attr("href");
+
+      const career = $(item)
+        .find(".chip-information-group > li:nth-child(1)")
+        .text();
+      const education = $(item)
+        .find(".chip-information-group > li:nth-child(2)")
+        .text();
+      const workPlace = $(item)
+        .find(`.chip-information-group > li:nth-child(4)`)
+        .text();
+      const deadLines = $(item)
+        .find(".chip-information-group > li:nth-child(5)")
+        .text();
+      const etc = $(item).find(".chip-benefit-item").text();
 
       result.push({
         id,
@@ -61,10 +69,10 @@ export default async function jobkorea(
         link,
         company: { name: companyName, link: companyLink },
         workPlace,
-        career,
         education,
         etc,
         deadLines,
+        career,
       });
     });
 
