@@ -7,8 +7,9 @@ import {
 import { useRouter } from "next/router";
 import { SelectorData } from "./types";
 import selectorsData from "./selectorsData.json";
+import { getActiveSection } from "./utils";
 
-export function useGetSelectorData() {
+export function useSelectorData() {
   return useContext(SelectorDataContext);
 }
 
@@ -21,25 +22,23 @@ export function useOption() {
 }
 
 // 모달 상태 생성로직
-export function useCreateModalState(selectorData: SelectorData[]) {
+export function useModalStore(selectorData: SelectorData[]) {
   const initialState: { [key: string]: boolean } = {};
   selectorData.forEach(({ id }) => (initialState[id] = false));
+
   const [modal, setModal] = useState(initialState);
 
-  const openModal = (category: string) => {
+  const toggleModal = (id: string) =>
     setModal((prev) => {
-      return prev[category]
-        ? initialState
-        : { ...initialState, [category]: true };
+      return prev[id] ? initialState : { ...initialState, [id]: true };
     });
-  };
 
   const closeAllModal = () => setModal(initialState);
-  return { modal, openModal, closeAllModal };
+  return { modal, toggleModal, closeAllModal };
 }
 
 // 옵션 체크박스 상태 생성로직
-export function useCreateOptionsState(
+export function useOptionsStore(
   options: SelectorData["options"],
   id: string,
   query: { [key: string]: string }
@@ -47,7 +46,7 @@ export function useCreateOptionsState(
   const initialState: { [key: string]: boolean } = {};
   options.forEach(({ value }) => (initialState[value] = false));
 
-  const [optionState, setOption] = useState({
+  const [option, setOption] = useState({
     ...initialState,
     [query[id]]: true,
   });
@@ -55,22 +54,22 @@ export function useCreateOptionsState(
   const onClickCheckBox = (value: string) =>
     setOption({ ...initialState, [value]: true });
 
-  return { optionState, setOption, onClickCheckBox };
+  return { option, setOption, onClickCheckBox };
 }
 
 // 쿼리값 로직
 export function useQuery() {
   const { asPath, query } = useRouter();
-  const isHome = asPath === "/";
   const section = getActiveSection(asPath);
+  const isHome = asPath === "/";
 
+  // query 객체에 path를 지우고 section으로 표현
   delete query.path;
-
   const queryObject: { [key: string]: string } = { section, ...query };
 
   if (!isHome) {
-    selectorsData.data.forEach(({ route, options, id }) => {
-      if (route !== "path") {
+    selectorsData.data.forEach(({ options, id }) => {
+      if (id !== "section") {
         options.forEach((option) => {
           if (option.default && !queryObject[id]) {
             queryObject[id] = option.value;
@@ -84,16 +83,4 @@ export function useQuery() {
   }
 
   return queryObject;
-}
-
-function getActiveSection(path: string) {
-  if (path === "/") {
-    return "home";
-  } else if (path.startsWith("/saramin")) {
-    return "saramin";
-  } else if (path.startsWith("/jobkorea")) {
-    return "jobkorea";
-  } else {
-    return "unknown";
-  }
 }

@@ -1,9 +1,9 @@
 import { SelectorDataContext, SelectorModalContext } from "@/context";
 import {
-  useCreateModalState,
-  useCreateOptionsState,
+  useModalStore,
+  useOptionsStore,
   useModal,
-  useGetSelectorData,
+  useSelectorData,
   useQuery,
 } from "@/hooks";
 import { CheckBoxProps, SelectorData } from "@/types";
@@ -26,12 +26,11 @@ export default function Search() {
 
 function Selectors({ selectorsData }: { selectorsData: SelectorData[] }) {
   //데이터를 기반으로 각각의 모달창 상태를 생성한다.
-  const modalStateController = useCreateModalState(selectorsData);
+  const modalStore = useModalStore(selectorsData);
   return (
     // ContextAPI로 prop를 줄여 컴포넌트의 의존성 제거 => 복잡도 낮아짐
-    <SelectorModalContext.Provider value={modalStateController}>
+    <SelectorModalContext.Provider value={modalStore}>
       {selectorsData.map((selectorData, index) => (
-        // 데이터를 기반으로 각각의 셀렉터들을 렌더링
         <SelectorDataContext.Provider value={selectorData} key={index}>
           <Selector />
         </SelectorDataContext.Provider>
@@ -42,29 +41,33 @@ function Selectors({ selectorsData }: { selectorsData: SelectorData[] }) {
 
 function Selector() {
   const { Container, Label } = SelectorStyles;
-  const { id, title, options } = useGetSelectorData();
-  const { modal, openModal } = useModal();
+
   const query = useQuery();
-  const isModal = modal[id];
+  const { modal, toggleModal } = useModal();
+  const { id, title, options } = useSelectorData();
+
   const valueText = options.find((option) => option.value === query[id])?.text;
+  const isModal = modal[id];
+  const labelText = title + " | " + valueText;
+
+  const onClickLabel = () => toggleModal(id);
 
   return (
     <div css={Container}>
-      <div onClick={() => openModal(id)} css={Label}>
-        {title + " | " + valueText}
+      <div onClick={onClickLabel} css={Label}>
+        {labelText}
       </div>
-      {isModal && <Modal query={query} />}
+      {isModal && <Modal />}
     </div>
   );
 }
-interface QueryType {
-  query: { [key: string]: string };
-}
 
-function Modal({ query }: QueryType) {
+function Modal() {
   const { ModalContainer } = SelectorStyles;
-  const { title } = useGetSelectorData();
+
+  const { title } = useSelectorData();
   const { closeAllModal } = useModal();
+
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -88,23 +91,20 @@ function Modal({ query }: QueryType) {
   return (
     <div ref={modalRef} css={ModalContainer}>
       <div>{title}</div>
-      <ModalForm query={query} />
+      <ModalForm />
     </div>
   );
 }
 
-function ModalForm({ query }: QueryType) {
+function ModalForm() {
   const { Button } = ModalFormStyles;
-  const { push } = useRouter();
-  const { options, id, route } = useGetSelectorData();
-  const { closeAllModal } = useModal();
 
+  const query = useQuery();
+  const { push } = useRouter();
+  const { closeAllModal } = useModal();
+  const { options, id } = useSelectorData();
   // 모달에 Check Box Options들의 상태를 만들어준다.
-  const { optionState, onClickCheckBox } = useCreateOptionsState(
-    options,
-    id,
-    query
-  );
+  const { option, onClickCheckBox } = useOptionsStore(options, id, query);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -112,14 +112,10 @@ function ModalForm({ query }: QueryType) {
 
     // optionState라는 객체에서 값이 true인 key값을 리턴한다.
     // 사용자가 체크한 값을 가져온다 ex) saramin, jobkorea
-    const chekedValue = getKeyRelevantValue(optionState, true);
-
-    // 사용자가 체크한 값을 가져와서
-    // 해당 모달의 라우트가 path이면 현재 URI를 가져와서 path부분을 추가해서 push한다.
-    // 모달의 라우트가 query이면 현재URI를 가져와서 query부분을 추가한 후 push 한다.
-
+    const chekedValue = getKeyRelevantValue(option, true);
     const { section, ...rest } = query;
-    if (route === "path") {
+
+    if (id === "section") {
       push({ pathname: chekedValue, query: { ...rest } });
     } else {
       push({ pathname: section, query: { ...rest, [id]: chekedValue } });
@@ -134,7 +130,7 @@ function ModalForm({ query }: QueryType) {
             key={index}
             id={index + ""}
             onChange={() => onClickCheckBox(value)}
-            checked={optionState[value]}
+            checked={option[value]}
             text={text}
           />
         );

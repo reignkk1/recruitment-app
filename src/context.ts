@@ -7,7 +7,7 @@ interface SelectorModalContextType {
   modal: {
     [key: string]: boolean;
   };
-  openModal: (category: string) => void;
+  toggleModal: (category: string) => void;
   closeAllModal: () => void;
 }
 

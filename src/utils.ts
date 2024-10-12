@@ -8,3 +8,15 @@ export function getKeyRelevantValue(
 
   return key;
 }
+
+export function getActiveSection(path: string) {
+  if (path === "/") {
+    return "home";
+  } else if (path.startsWith("/saramin")) {
+    return "saramin";
+  } else if (path.startsWith("/jobkorea")) {
+    return "jobkorea";
+  } else {
+    return "unknown";
+  }
+}

@@ -35,15 +35,15 @@ export default async function jobkorea(
     const { data: html } = await axios(
       `${DOMAIN}/Search/?stext=${JOB}&careerType=${CAREER}&tabType=recruit&Page_No=${page}&ord=RegDtDesc`
     );
+
     const $ = cheerio.load(html);
 
     const result = [] as object[];
     const total = Number($(".util-total-count").attr("total-count"));
 
-    $(".list .list-item").each((i, item) => {
+    $(".content-recruit .list .list-item").each((i, item) => {
       const id = $(item).attr("data-gino");
       const title = $(item).find(".information-title-link").text().trim();
-      console.log(title);
       const link =
         DOMAIN + $(item).find(".information-title-link").attr("href");
       const companyName = $(item).find(".corp-name-link").text().trim();
@@ -62,6 +62,8 @@ export default async function jobkorea(
         .find(".chip-information-group > li:nth-child(5)")
         .text();
       const etc = $(item).find(".chip-benefit-item").text();
+
+      console.log(title);
 
       result.push({
         id,
