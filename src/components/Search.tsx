@@ -1,4 +1,3 @@
-import { SelectorDataContext, SelectorModalContext } from "@/context";
 import {
   useModalStore,
   useOptionsStore,
@@ -6,12 +5,13 @@ import {
   useSelectorData,
   useQuery,
 } from "@/hooks";
-import { CheckBoxProps, SelectorData } from "@/types";
 import { css } from "@emotion/react";
 import { useRouter } from "next/router";
-import { FormEvent, useEffect, useRef } from "react";
-import selectorsData from "../selectorsData.json";
 import { getKeyRelevantValue } from "@/utils";
+import selectorsData from "../selectorsData.json";
+import { FormEvent, useEffect, useRef } from "react";
+import { CheckBoxProps, SelectorData } from "@/types";
+import { SelectorDataContext, SelectorModalContext } from "@/context";
 
 export default function Search() {
   const { data } = selectorsData;
@@ -28,7 +28,7 @@ function Selectors({ selectorsData }: { selectorsData: SelectorData[] }) {
   //데이터를 기반으로 각각의 모달창 상태를 생성한다.
   const modalStore = useModalStore(selectorsData);
   return (
-    // ContextAPI로 prop를 줄여 컴포넌트의 의존성 제거 => 복잡도 낮아짐
+    // ContextAPI로 prop drilling을 줄여 컴포넌트의 의존성 제거 => 복잡도 낮아짐
     <SelectorModalContext.Provider value={modalStore}>
       {selectorsData.map((selectorData, index) => (
         <SelectorDataContext.Provider value={selectorData} key={index}>
