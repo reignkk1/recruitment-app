@@ -39,18 +39,6 @@ export default function HomeContent() {
       <div css={[BubbleTemplate, Bubble2]}></div>
       <div css={[BubbleTemplate, Bubble3]}></div>
       <div css={[BubbleTemplate, Bubble4]}></div>
-      <Image
-        alt="banner"
-        src="https://www.aicareer.co.kr/_next/image?url=%2Fburn_overlay.png&w=1920&q=75"
-        sizes="100vw"
-        width={0}
-        height={0}
-        css={css`
-          height: 100vh;
-          width: 100vw;
-          mix-blend-mode: color-burn;
-        `}
-      />
     </div>
   );
 }
